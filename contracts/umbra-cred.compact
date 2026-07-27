@@ -1,0 +1,53 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+// Private witness data a credential holder keeps off-chain.
+// score is the value being gated on; salt keeps the commitment hiding.
+export struct Credential {
+  score: Uint<16>;
+  salt: Bytes<32>;
+}
+
+// Public ledger state.
+export ledger issuerKey: Bytes<32>;
+export ledger credentials: Set<Bytes<32>>;
+
+constructor(initialIssuerKey: Bytes<32>) {
+  issuerKey = initialIssuerKey;
+}
+
+witness localIssuerSecretKey(): Bytes<32>;
+witness localCredential(): Credential;
+witness localOwnerSecretKey(): Bytes<32>;
+
+export circuit issuerPublicKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "umbracred:issuer:"), sk]);
+}
+
+export circuit credentialCommitment(cred: Credential, ownerKey: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<4, Bytes<32>>>([
+    pad(32, "umbracred:cred:"),
+    ownerKey,
+    cred.salt,
+    cred.score as Field as Bytes<32>
+  ]);
+}
+
+// Issuer registers a commitment to a credential without revealing its contents.
+export circuit issueCredential(commitment: Bytes<32>): [] {
+  assert(
+    issuerKey == issuerPublicKey(localIssuerSecretKey()),
+    "Only the approved issuer can issue a credential"
+  );
+  credentials.insert(disclose(commitment));
+}
+
+// Holder proves their credential meets a public threshold without revealing the real score.
+export circuit proveEligibility(threshold: Uint<16>): Boolean {
+  const cred = localCredential();
+  const ownerKey = localOwnerSecretKey();
+  const commitment = credentialCommitment(cred, ownerKey);
+  assert(credentials.member(commitment), "Credential commitment not found on ledger");
+  return disclose(cred.score >= threshold);
+}
