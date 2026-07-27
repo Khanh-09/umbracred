@@ -1,23 +1,9 @@
-// This file is part of midnightntwrk/example-bboard.
-// Copyright (C) Midnight Foundation
-// SPDX-License-Identifier: Apache-2.0
-// Licensed under the Apache License, Version 2.0 (the "License");
-// You may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 import {
-  BBoardAPI,
-  type BBoardCircuitKeys,
-  type BBoardProviders,
-  type DeployedBBoardAPI,
+  UmbraCredAPI,
+  type UmbraCredCircuitKeys,
+  type UmbraCredProviders,
+  type DeployedUmbraCredAPI,
+  utils,
 } from '../../../api/src/index';
 import { type ContractAddress, fromHex, toHex } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import {
@@ -49,101 +35,99 @@ import {
   Transaction,
   TransactionId,
 } from '@midnight-ntwrk/midnight-js-protocol/ledger';
-import { BBoardPrivateState } from '@midnight-ntwrk/bboard-contract';
+import { type UmbraCredPrivateState } from '@midnight-ntwrk/bboard-contract';
 import { inMemoryPrivateStateProvider } from '../in-memory-private-state-provider';
 import { NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 import type { UnboundTransaction } from '@midnight-ntwrk/midnight-js-types';
 
 /**
- * An in-progress bulletin board deployment.
+ * An in-progress UmbraCred deployment.
  */
-export interface InProgressBoardDeployment {
+export interface InProgressCredentialDeployment {
   readonly status: 'in-progress';
 }
 
 /**
- * A deployed bulletin board deployment.
+ * A deployed UmbraCred deployment.
  */
-export interface DeployedBoardDeployment {
+export interface DeployedCredentialDeployment {
   readonly status: 'deployed';
-
-  /**
-   * The {@link DeployedBBoardAPI} instance when connected to an on network bulletin board contract.
-   */
-  readonly api: DeployedBBoardAPI;
+  readonly api: DeployedUmbraCredAPI;
 }
 
 /**
- * A failed bulletin board deployment.
+ * A failed UmbraCred deployment.
  */
-export interface FailedBoardDeployment {
+export interface FailedCredentialDeployment {
   readonly status: 'failed';
-
-  /**
-   * The error that caused the deployment to fail.
-   */
   readonly error: Error;
 }
 
 /**
- * A bulletin board deployment.
+ * An UmbraCred contract deployment.
  */
-export type BoardDeployment = InProgressBoardDeployment | DeployedBoardDeployment | FailedBoardDeployment;
+export type CredentialDeployment = InProgressCredentialDeployment | DeployedCredentialDeployment | FailedCredentialDeployment;
 
 /**
- * Provides access to bulletin board deployments.
+ * Provides access to UmbraCred deployments.
  */
-export interface DeployedBoardAPIProvider {
+export interface DeployedCredentialAPIProvider {
   /**
-   * Gets the observable set of board deployments.
-   *
-   * @remarks
-   * This property represents an observable array of {@link BoardDeployment}, each also an
-   * observable. Changes to the array will be emitted as boards are resolved (deployed or joined),
-   * while changes to each underlying board can be observed via each item in the array.
+   * Gets the observable set of contract deployments.
    */
-  readonly boardDeployments$: Observable<Array<Observable<BoardDeployment>>>;
+  readonly credentialDeployments$: Observable<Array<Observable<CredentialDeployment>>>;
 
   /**
-   * Joins or deploys a bulletin board contract.
-   *
-   * @param contractAddress An optional contract address to use when resolving.
-   * @returns An observable board deployment.
-   *
-   * @remarks
-   * For a given `contractAddress`, the method will attempt to find and join the identified bulletin board
-   * contract; otherwise it will attempt to deploy a new one.
+   * Deploys a new UmbraCred contract: this session becomes the approved issuer, and is issued a
+   * credential with the given `score`.
    */
-  readonly resolve: (contractAddress?: ContractAddress) => Observable<BoardDeployment>;
+  readonly deploy: (score: bigint) => Observable<CredentialDeployment>;
+
+  /**
+   * Joins an already-deployed UmbraCred contract at `contractAddress`.
+   */
+  readonly join: (contractAddress: ContractAddress) => Observable<CredentialDeployment>;
 }
 
 /**
- * A {@link DeployedBoardAPIProvider} that manages bulletin board deployments in a browser setting.
+ * A {@link DeployedCredentialAPIProvider} that manages UmbraCred deployments in a browser setting.
  *
  * @remarks
- * {@link BrowserDeployedBoardManager} configures and manages a connection to the Midnight Lace
+ * {@link BrowserUmbraCredManager} configures and manages a connection to the Midnight Lace
  * wallet, along with a collection of additional providers that work in a web-browser setting.
  */
-export class BrowserDeployedBoardManager implements DeployedBoardAPIProvider {
-  readonly #boardDeploymentsSubject: BehaviorSubject<Array<BehaviorSubject<BoardDeployment>>>;
-  #initializedProviders: Promise<BBoardProviders> | undefined;
+export class BrowserUmbraCredManager implements DeployedCredentialAPIProvider {
+  readonly #credentialDeploymentsSubject: BehaviorSubject<Array<BehaviorSubject<CredentialDeployment>>>;
+  #initializedProviders: Promise<UmbraCredProviders> | undefined;
 
   /**
-   * Initializes a new {@link BrowserDeployedBoardManager} instance.
+   * Initializes a new {@link BrowserUmbraCredManager} instance.
    *
-   * @param logger The `pino` logger to for logging.
+   * @param logger The `pino` logger to use for logging.
    */
   constructor(private readonly logger: Logger) {
-    this.#boardDeploymentsSubject = new BehaviorSubject<Array<BehaviorSubject<BoardDeployment>>>([]);
-    this.boardDeployments$ = this.#boardDeploymentsSubject;
+    this.#credentialDeploymentsSubject = new BehaviorSubject<Array<BehaviorSubject<CredentialDeployment>>>([]);
+    this.credentialDeployments$ = this.#credentialDeploymentsSubject;
   }
 
   /** @inheritdoc */
-  readonly boardDeployments$: Observable<Array<Observable<BoardDeployment>>>;
+  readonly credentialDeployments$: Observable<Array<Observable<CredentialDeployment>>>;
 
   /** @inheritdoc */
-  resolve(contractAddress?: ContractAddress): Observable<BoardDeployment> {
-    const deployments = this.#boardDeploymentsSubject.value;
+  deploy(score: bigint): Observable<CredentialDeployment> {
+    const deployments = this.#credentialDeploymentsSubject.value;
+    const deployment = new BehaviorSubject<CredentialDeployment>({ status: 'in-progress' });
+
+    void this.deployDeployment(deployment, score);
+
+    this.#credentialDeploymentsSubject.next([...deployments, deployment]);
+
+    return deployment;
+  }
+
+  /** @inheritdoc */
+  join(contractAddress: ContractAddress): Observable<CredentialDeployment> {
+    const deployments = this.#credentialDeploymentsSubject.value;
     let deployment = deployments.find(
       (deployment) =>
         deployment.value.status === 'deployed' && deployment.value.api.deployedContractAddress === contractAddress,
@@ -153,35 +137,26 @@ export class BrowserDeployedBoardManager implements DeployedBoardAPIProvider {
       return deployment;
     }
 
-    deployment = new BehaviorSubject<BoardDeployment>({
-      status: 'in-progress',
-    });
+    deployment = new BehaviorSubject<CredentialDeployment>({ status: 'in-progress' });
 
-    if (contractAddress) {
-      void this.joinDeployment(deployment, contractAddress);
-    } else {
-      void this.deployDeployment(deployment);
-    }
+    void this.joinDeployment(deployment, contractAddress);
 
-    this.#boardDeploymentsSubject.next([...deployments, deployment]);
+    this.#credentialDeploymentsSubject.next([...deployments, deployment]);
 
     return deployment;
   }
 
-  private getProviders(): Promise<BBoardProviders> {
-    // We use a cached `Promise` to hold the providers. This will:
-    //
-    // 1. Cache and re-use the providers (including the configured connector API), and
-    // 2. Act as a synchronization point if multiple contract deploys or joins run concurrently.
-    //    Concurrent calls to `getProviders()` will receive, and ultimately await, the same
-    //    `Promise`.
+  private getProviders(): Promise<UmbraCredProviders> {
     return this.#initializedProviders ?? (this.#initializedProviders = initializeProviders(this.logger));
   }
 
-  private async deployDeployment(deployment: BehaviorSubject<BoardDeployment>): Promise<void> {
+  private async deployDeployment(deployment: BehaviorSubject<CredentialDeployment>, score: bigint): Promise<void> {
     try {
       const providers = await this.getProviders();
-      const api = await BBoardAPI.deploy(providers, this.logger);
+      const issuerSecretKey = utils.randomBytes(32);
+      const ownerSecretKey = utils.randomBytes(32);
+      const credential = { score, salt: utils.randomBytes(32) };
+      const api = await UmbraCredAPI.deploy(providers, issuerSecretKey, ownerSecretKey, credential, this.logger);
 
       deployment.next({
         status: 'deployed',
@@ -196,12 +171,12 @@ export class BrowserDeployedBoardManager implements DeployedBoardAPIProvider {
   }
 
   private async joinDeployment(
-    deployment: BehaviorSubject<BoardDeployment>,
+    deployment: BehaviorSubject<CredentialDeployment>,
     contractAddress: ContractAddress,
   ): Promise<void> {
     try {
       const providers = await this.getProviders();
-      const api = await BBoardAPI.join(providers, contractAddress, this.logger);
+      const api = await UmbraCredAPI.join(providers, contractAddress, this.logger);
 
       deployment.next({
         status: 'deployed',
@@ -217,16 +192,16 @@ export class BrowserDeployedBoardManager implements DeployedBoardAPIProvider {
 }
 
 /** @internal */
-const initializeProviders = async (logger: Logger): Promise<BBoardProviders> => {
+const initializeProviders = async (logger: Logger): Promise<UmbraCredProviders> => {
   const networkId = import.meta.env.VITE_NETWORK_ID as NetworkId;
   const connectedAPI = await connectToWallet(logger, networkId);
-  const zkConfigPath = window.location.origin; // '../../../contract/src/managed/bboard';
-  const keyMaterialProvider = new FetchZkConfigProvider<BBoardCircuitKeys>(zkConfigPath, fetch.bind(window));
+  const zkConfigPath = window.location.origin;
+  const keyMaterialProvider = new FetchZkConfigProvider<UmbraCredCircuitKeys>(zkConfigPath, fetch.bind(window));
   const config = await connectedAPI.getConfiguration();
-  const inMemoryBBoardPrivateStateProvider = inMemoryPrivateStateProvider<string, BBoardPrivateState>();
+  const inMemoryUmbraCredPrivateStateProvider = inMemoryPrivateStateProvider<string, UmbraCredPrivateState>();
   const shieldedAddresses = await connectedAPI.getShieldedAddresses();
   return {
-    privateStateProvider: inMemoryBBoardPrivateStateProvider,
+    privateStateProvider: inMemoryUmbraCredPrivateStateProvider,
     zkConfigProvider: keyMaterialProvider,
     proofProvider: httpClientProofProvider(config.proverServerUri!, keyMaterialProvider),
     publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),

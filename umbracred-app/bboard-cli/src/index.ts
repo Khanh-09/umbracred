@@ -18,11 +18,7 @@ import {
   type PrivateStateId,
 } from '../../api/src/index';
 import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
-import {
-  ledger,
-  pureCircuits,
-  type Ledger,
-} from '../../contract/src/managed/umbra-cred/contract/index.js';
+import { ledger, type Ledger } from '../../contract/src/managed/umbra-cred/contract/index.js';
 import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
 import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-public-data-provider';
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
@@ -187,16 +183,7 @@ const mainLoop = async (providers: UmbraCredProviders, rli: Interface, logger: L
       try {
         switch (choice) {
           case '1': {
-            const privateState = await providers.privateStateProvider.get(umbraCredPrivateStateKey);
-            if (privateState === null) {
-              logger.error('No private state available to issue a credential for.');
-              break;
-            }
-            const commitment = pureCircuits.credentialCommitment(
-              privateState.credential,
-              privateState.ownerSecretKey,
-            );
-            await umbraCredApi.issueCredential(commitment);
+            await umbraCredApi.issueMyCredential();
             break;
           }
           case '2': {

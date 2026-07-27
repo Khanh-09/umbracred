@@ -25,6 +25,8 @@ export interface DeployedUmbraCredAPI {
 
   issueCredential: (commitment: Uint8Array) => Promise<void>;
   proveEligibility: (threshold: bigint) => Promise<boolean>;
+  issueMyCredential: () => Promise<void>;
+  getLocalPrivateState: () => Promise<UmbraCredPrivateState | null>;
 }
 
 /**
@@ -41,7 +43,7 @@ export class UmbraCredAPI implements DeployedUmbraCredAPI {
   /** @internal */
   private constructor(
     public readonly deployedContract: DeployedUmbraCredContract,
-    providers: UmbraCredProviders,
+    private readonly providers: UmbraCredProviders,
     private readonly logger?: Logger,
   ) {
     this.deployedContractAddress = deployedContract.deployTxData.public.contractAddress;
@@ -119,6 +121,28 @@ export class UmbraCredAPI implements DeployedUmbraCredAPI {
     });
 
     return txData.private.result;
+  }
+
+  /**
+   * Reads back the private data this session holds locally — the real score, salt, and secret
+   * keys that never touch the ledger. Exposed so a UI can demonstrate, side by side, what an
+   * observer can see (via {@link state$}) versus what only this instance knows.
+   */
+  async getLocalPrivateState(): Promise<UmbraCredPrivateState | null> {
+    return this.providers.privateStateProvider.get(umbraCredPrivateStateKey);
+  }
+
+  /**
+   * Convenience wrapper around {@link issueCredential} that computes the commitment for this
+   * session's own credential (from local private state) before submitting it.
+   */
+  async issueMyCredential(): Promise<void> {
+    const privateState = await this.getLocalPrivateState();
+    if (!privateState) {
+      throw new Error('No private state available to issue a credential for.');
+    }
+    const commitment = UmbraCred.pureCircuits.credentialCommitment(privateState.credential, privateState.ownerSecretKey);
+    await this.issueCredential(commitment);
   }
 
   /**
