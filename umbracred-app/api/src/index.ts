@@ -1,119 +1,70 @@
-// This file is part of midnightntwrk/example-bboard.
-// Copyright (C) Midnight Foundation
-// SPDX-License-Identifier: Apache-2.0
-// Licensed under the Apache License, Version 2.0 (the "License");
-// You may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+import * as UmbraCred from '../../contract/src/managed/umbra-cred/contract/index.js';
 
-/**
- * Provides types and utilities for working with bulletin board contracts.
- *
- * @packageDocumentation
- */
-
-import * as BBoard from '../../contract/src/managed/bboard/contract/index.js';
-
-import { type ContractAddress, convertFieldToBytes } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
+import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import { type Logger } from 'pino';
 import {
-  type BBoardDerivedState,
-  type BBoardContract,
-  type BBoardProviders,
-  type DeployedBBoardContract,
-  bboardPrivateStateKey,
+  type UmbraCredDerivedState,
+  type UmbraCredContract,
+  type UmbraCredProviders,
+  type DeployedUmbraCredContract,
+  umbraCredPrivateStateKey,
 } from './common-types.js';
-import { CompiledBBoardContractContract } from '../../contract/src/index';
+import { CompiledUmbraCredContractContract } from '../../contract/src/index';
 import * as utils from './utils/index.js';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
-import { combineLatest, map, tap, from, type Observable } from 'rxjs';
+import { map, tap, type Observable } from 'rxjs';
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
-import { BBoardPrivateState, createBBoardPrivateState } from '../../contract/src/witnesses.js';
-
-/** @internal */
+import { UmbraCredPrivateState, createUmbraCredPrivateState } from '../../contract/src/witnesses.js';
 
 /**
- * An API for a deployed bulletin board.
+ * An API for a deployed UmbraCred contract.
  */
-export interface DeployedBBoardAPI {
+export interface DeployedUmbraCredAPI {
   readonly deployedContractAddress: ContractAddress;
-  readonly state$: Observable<BBoardDerivedState>;
+  readonly state$: Observable<UmbraCredDerivedState>;
 
-  post: (message: string) => Promise<void>;
-  takeDown: () => Promise<void>;
+  issueCredential: (commitment: Uint8Array) => Promise<void>;
+  proveEligibility: (threshold: bigint) => Promise<boolean>;
 }
 
 /**
- * Provides an implementation of {@link DeployedBBoardAPI} by adapting a deployed bulletin board
+ * Provides an implementation of {@link DeployedUmbraCredAPI} by adapting a deployed UmbraCred
  * contract.
  *
  * @remarks
- * The `BBoardPrivateState` is managed at the DApp level by a private state provider. As such, this
- * private state is shared between all instances of {@link BBoardAPI}, and their underlying deployed
- * contracts. The private state defines a `'secretKey'` property that effectively identifies the current
- * user, and is used to determine if the current user is the owner of the message as the observable
- * contract state changes.
- *
- * In the future, Midnight.js will provide a private state provider that supports private state storage
- * keyed by contract address. This will remove the current workaround of sharing private state across
- * the deployed bulletin board contracts, and allows for a unique secret key to be generated for each bulletin
- * board that the user interacts with.
+ * For this early-stage demo, one wallet session plays both the issuer and the credential holder,
+ * so `UmbraCredPrivateState` bundles the issuer secret key, the holder secret key, and the
+ * credential itself. A production version would keep these separate across distinct issuer and
+ * holder identities.
  */
-// TODO: Update BBoardAPI to use contract level private state storage.
-export class BBoardAPI implements DeployedBBoardAPI {
+export class UmbraCredAPI implements DeployedUmbraCredAPI {
   /** @internal */
   private constructor(
-    public readonly deployedContract: DeployedBBoardContract,
-    providers: BBoardProviders,
+    public readonly deployedContract: DeployedUmbraCredContract,
+    providers: UmbraCredProviders,
     private readonly logger?: Logger,
   ) {
     this.deployedContractAddress = deployedContract.deployTxData.public.contractAddress;
     providers.privateStateProvider.setContractAddress(this.deployedContractAddress);
-    this.state$ = combineLatest(
-      [
-        // Combine public (ledger) state with...
-        providers.publicDataProvider.contractStateObservable(this.deployedContractAddress, { type: 'latest' }).pipe(
-          map((contractState) => BBoard.ledger(contractState.data)),
-          tap((ledgerState) =>
-            logger?.trace({
-              ledgerStateChanged: {
-                ledgerState: {
-                  ...ledgerState,
-                  state: ledgerState.state === BBoard.State.OCCUPIED ? 'occupied' : 'vacant',
-                  owner: toHex(ledgerState.owner),
-                },
+    this.state$ = providers.publicDataProvider
+      .contractStateObservable(this.deployedContractAddress, { type: 'latest' })
+      .pipe(
+        map((contractState) => UmbraCred.ledger(contractState.data)),
+        tap((ledgerState) =>
+          logger?.trace({
+            ledgerStateChanged: {
+              ledgerState: {
+                issuerKey: toHex(ledgerState.issuerKey),
+                credentialCount: ledgerState.credentials.size(),
               },
-            }),
-          ),
+            },
+          }),
         ),
-        // ...private state...
-        //    since the private state of the bulletin board application never changes, we can query the
-        //    private state once and always use the same value with `combineLatest`. In applications
-        //    where the private state is expected to change, we would need to make this an `Observable`.
-        from(providers.privateStateProvider.get(bboardPrivateStateKey) as Promise<BBoardPrivateState>),
-      ],
-      // ...and combine them to produce the required derived state.
-      (ledgerState, privateState) => {
-        const hashedSecretKey = BBoard.pureCircuits.publicKey(
-          privateState.secretKey,
-          convertFieldToBytes(32, ledgerState.sequence, 'api/src/index.ts'),
-        );
-
-        return {
-          state: ledgerState.state,
-          message: ledgerState.message.value,
-          sequence: ledgerState.sequence,
-          isOwner: toHex(ledgerState.owner) === toHex(hashedSecretKey),
-        };
-      },
-    );
+        map((ledgerState) => ({
+          issuerKey: ledgerState.issuerKey,
+          credentialCount: ledgerState.credentials.size(),
+        })),
+      );
   }
 
   /**
@@ -122,27 +73,27 @@ export class BBoardAPI implements DeployedBBoardAPI {
   readonly deployedContractAddress: ContractAddress;
 
   /**
-   * Gets an observable stream of state changes based on the current public (ledger),
-   * and private state data.
+   * Gets an observable stream of state changes based on the current public (ledger) state.
+   * This is exactly what any outside observer can see: the approved issuer's public key, and
+   * how many credential commitments have been registered — never a score, salt, or identity.
    */
-  readonly state$: Observable<BBoardDerivedState>;
+  readonly state$: Observable<UmbraCredDerivedState>;
 
   /**
-   * Attempts to post a given message to the bulletin board.
-   *
-   * @param message The message to post.
+   * Registers a credential commitment on the ledger, as the approved issuer.
    *
    * @remarks
-   * This method can fail during local circuit execution if the bulletin board is currently occupied.
+   * Fails during local circuit execution if the caller's issuer secret key does not match the
+   * ledger's `issuerKey`.
    */
-  async post(message: string): Promise<void> {
-    this.logger?.info(`postingMessage: ${message}`);
+  async issueCredential(commitment: Uint8Array): Promise<void> {
+    this.logger?.info('issuingCredential');
 
-    const txData = await this.deployedContract.callTx.post(message);
+    const txData = await this.deployedContract.callTx.issueCredential(commitment);
 
     this.logger?.trace({
       transactionAdded: {
-        circuit: 'post',
+        circuit: 'issueCredential',
         txHash: txData.public.txHash,
         blockHeight: txData.public.blockHeight,
       },
@@ -150,92 +101,103 @@ export class BBoardAPI implements DeployedBBoardAPI {
   }
 
   /**
-   * Attempts to take down any currently posted message on the bulletin board.
+   * Proves that the holder's credential score meets `threshold`, without revealing the score.
    *
-   * @remarks
-   * This method can fail during local circuit execution if the bulletin board is currently vacant,
-   * or if the currently posted message isn't owned by the owner computed from the current private
-   * state.
+   * @returns Only the boolean result of the comparison — never the real score.
    */
-  async takeDown(): Promise<void> {
-    this.logger?.info('takingDownMessage');
+  async proveEligibility(threshold: bigint): Promise<boolean> {
+    this.logger?.info(`provingEligibility: threshold=${threshold}`);
 
-    const txData = await this.deployedContract.callTx.takeDown();
+    const txData = await this.deployedContract.callTx.proveEligibility(threshold);
 
     this.logger?.trace({
       transactionAdded: {
-        circuit: 'takeDown',
+        circuit: 'proveEligibility',
         txHash: txData.public.txHash,
         blockHeight: txData.public.blockHeight,
       },
     });
+
+    return txData.private.result;
   }
 
   /**
-   * Deploys a new bulletin board contract to the network.
+   * Deploys a new UmbraCred contract to the network.
    *
-   * @param providers The bulletin board providers.
-   * @param logger An optional 'pino' logger to use for logging.
-   * @returns A `Promise` that resolves with a {@link BBoardAPI} instance that manages the newly deployed
-   * {@link DeployedBBoardContract}; or rejects with a deployment error.
+   * @param issuerSecretKey The secret key of the approved issuer, used to set the contract's
+   * initial `issuerKey`.
+   * @param ownerSecretKey The secret key of the credential holder for this session.
+   * @param credential The credential this session's holder is issued.
    */
-  static async deploy(providers: BBoardProviders, logger?: Logger): Promise<BBoardAPI> {
+  static async deploy(
+    providers: UmbraCredProviders,
+    issuerSecretKey: Uint8Array,
+    ownerSecretKey: Uint8Array,
+    credential: UmbraCred.Credential,
+    logger?: Logger,
+  ): Promise<UmbraCredAPI> {
     logger?.info('deployContract');
 
-    const deployedBBoardContract = await deployContract(providers, {
-      compiledContract: CompiledBBoardContractContract,
-      privateStateId: bboardPrivateStateKey,
-      initialPrivateState: createBBoardPrivateState(utils.randomBytes(32)),
+    const initialIssuerKey = UmbraCred.pureCircuits.issuerPublicKey(issuerSecretKey);
+    const deployedUmbraCredContract = await deployContract(providers, {
+      compiledContract: CompiledUmbraCredContractContract,
+      privateStateId: umbraCredPrivateStateKey,
+      initialPrivateState: createUmbraCredPrivateState(issuerSecretKey, ownerSecretKey, credential),
+      args: [initialIssuerKey],
     });
 
     logger?.trace({
       contractDeployed: {
-        finalizedDeployTxData: deployedBBoardContract.deployTxData.public,
+        finalizedDeployTxData: deployedUmbraCredContract.deployTxData.public,
       },
     });
 
-    return new BBoardAPI(deployedBBoardContract, providers, logger);
+    return new UmbraCredAPI(deployedUmbraCredContract, providers, logger);
   }
 
   /**
-   * Finds an already deployed bulletin board contract on the network, and joins it.
-   *
-   * @param providers The bulletin board providers.
-   * @param contractAddress The contract address of the deployed bulletin board contract to search for and join.
-   * @param logger An optional 'pino' logger to use for logging.
-   * @returns A `Promise` that resolves with a {@link BBoardAPI} instance that manages the joined
-   * {@link DeployedBBoardContract}; or rejects with an error.
+   * Finds an already deployed UmbraCred contract on the network, and joins it.
    */
-  static async join(providers: BBoardProviders, contractAddress: ContractAddress, logger?: Logger): Promise<BBoardAPI> {
+  static async join(
+    providers: UmbraCredProviders,
+    contractAddress: ContractAddress,
+    logger?: Logger,
+  ): Promise<UmbraCredAPI> {
     logger?.info({
       joinContract: {
         contractAddress,
       },
     });
 
-    const deployedBBoardContract = await findDeployedContract<BBoardContract>(providers, {
+    const deployedUmbraCredContract = await findDeployedContract<UmbraCredContract>(providers, {
       contractAddress,
-      compiledContract: CompiledBBoardContractContract,
-      privateStateId: bboardPrivateStateKey,
-      initialPrivateState: await BBoardAPI.getPrivateState(providers, contractAddress),
+      compiledContract: CompiledUmbraCredContractContract,
+      privateStateId: umbraCredPrivateStateKey,
+      initialPrivateState: await UmbraCredAPI.getPrivateState(providers, contractAddress),
     });
 
     logger?.trace({
       contractJoined: {
-        finalizedDeployTxData: deployedBBoardContract.deployTxData.public,
+        finalizedDeployTxData: deployedUmbraCredContract.deployTxData.public,
       },
     });
 
-    return new BBoardAPI(deployedBBoardContract, providers, logger);
+    return new UmbraCredAPI(deployedUmbraCredContract, providers, logger);
   }
 
   private static async getPrivateState(
-    providers: BBoardProviders,
+    providers: UmbraCredProviders,
     contractAddress: ContractAddress,
-  ): Promise<BBoardPrivateState> {
+  ): Promise<UmbraCredPrivateState> {
     providers.privateStateProvider.setContractAddress(contractAddress);
-    const existingPrivateState = await providers.privateStateProvider.get(bboardPrivateStateKey);
-    return existingPrivateState ?? createBBoardPrivateState(utils.randomBytes(32));
+    const existingPrivateState = await providers.privateStateProvider.get(umbraCredPrivateStateKey);
+    return (
+      existingPrivateState ??
+      createUmbraCredPrivateState(utils.randomBytes(32), utils.randomBytes(32), {
+        score: 0n,
+        salt: utils.randomBytes(32),
+      })
+    );
   }
 }
 
