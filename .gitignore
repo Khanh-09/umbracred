@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.env
+.midnight-state.json
+*.log
