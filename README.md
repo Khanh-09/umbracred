@@ -34,14 +34,18 @@ nvm install 22
 # 3. Docker Desktop (installed on Windows, enable WSL2 integration in Settings > Resources > WSL Integration)
 docker run -p 6300:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
 
-# 4. Scaffold the app and compile the contract
+# 4. Scaffold the app (Full DApp > Bulletin Board template) and install workspaces
 npx create-mn-app umbracred-app
-cp contracts/umbra-cred.compact umbracred-app/contracts/
 cd umbracred-app
-npm run setup
+npm install
+cd api && npm install && cd ..
+cd contract && npm install
+
+# 5. Compile the contract (contract/src/umbra-cred.compact -> contract/src/managed/umbra-cred)
+npm run compact
 ```
 
-`compact compile` output should list the generated circuits, and a `managed/` directory (circuits + proving/verifying keys) will appear next to the contract source.
+`compact compile` lists the generated circuits, and a `managed/` directory (circuits + proving/verifying keys) appears next to the contract source at [umbracred-app/contract/src/managed/umbra-cred](umbracred-app/contract/src/managed/umbra-cred).
 
 ## Public ledger state vs. private witness
 
@@ -57,11 +61,12 @@ The ledger only ever sees a *commitment* (a hash) — never the score, the salt,
 
 - `issueCredential(commitment)` calls `credentials.insert(disclose(commitment))`. The issuer explicitly discloses the commitment hash (an opaque value) so it can be looked up later — never the credential contents it hides.
 - `proveEligibility(threshold)` calls `return disclose(cred.score >= threshold)`. Only the **boolean result** of the comparison is disclosed. The real `cred.score` is read from a witness, compared locally inside the circuit, and never leaves the proof as a value — only "did it pass the threshold" does.
-- Membership checks (`credentials.member(commitment)`) and the issuer-key check in `issueCredential` happen inside `assert()` and are not disclosed — they can fail the proof without revealing why beyond "assertion failed".
+- `credentials.member(disclose(commitment))` also needs an explicit `disclose()`: any argument passed into a *ledger container operation* (`Set.member`, `Map.lookup`, ...) counts as a disclosure boundary in Compact, even inside an `assert()` — unlike a plain `==` comparison between two values, which does not. The commitment is just an opaque hash, so disclosing it is intentional and safe; the score/salt behind it stay private.
+- The issuer-key check in `issueCredential` (`assert(issuerKey == issuerPublicKey(localIssuerSecretKey()), ...)`) is a plain equality assert, not a ledger operation, so it needs no `disclose()` — it can only fail the proof, never reveal *why*.
 
 ## Contract
 
-See [contracts/umbra-cred.compact](contracts/umbra-cred.compact). Circuits:
+See [umbracred-app/contract/src/umbra-cred.compact](umbracred-app/contract/src/umbra-cred.compact). Circuits:
 
 - `issueCredential(commitment)` — approved issuer registers a credential commitment.
 - `proveEligibility(threshold)` — holder proves their credential's score meets `threshold`, disclosing only `true`/`false`.
