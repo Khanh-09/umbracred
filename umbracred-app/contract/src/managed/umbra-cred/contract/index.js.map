@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../../",
+  "sources": ["src/umbra-cred.compact", "compiler/standard-library.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAeA;;;;;;;;;;;;;;;;;;;MAQA,AAAA,eAEC;;OAAA;MAED,AAAA,oBAOC;;OAAA;MAGD,AAAA,eAMC;;;;;cAN8B,YAAqB;;;;;;;;;;;;;;;;;;yCAArB,YAAqB;;;;;;;;;iDAArB,YAAqB;;;OAMnD;MAGD,AAAA,gBAMC;;;;;cAN+B,WAAmB;;;;;;;;;;;;;;;;;;yCAAnB,WAAmB;;;;;;;;;kDAAnB,WAAmB;;;OAMlD;;;;;;;;;;GAnCA;EAFD;;;;;UAAY,kBAA2B;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAHvC;;;;;;;;;yEAAmC;IACnC;;;;;;;;;;yEAA0C;IAGxC;;;;;;;2HAAqB,kBAAgB;;yEAA5B;;;;;;;GACV;ECjBD,AAAA,kBAAA;oEAAA;;;EAAA,AAAA,kBAAA;oEAAA;;;EDmBA,AAAA,uBAA0C;;0DAA1C,oBAA0C;;;;;;;;;;;;;;GAAA;EAC1C,AAAA,kBAAsC;;0DAAtC,eAAsC;;;;;;;;;;;;;;GAAA;EACtC,AAAA,sBAAyC;;0DAAzC,mBAAyC;;;;;;;;;;;;;;GAAA;EAEzC,AAAA,kBAEC,CAF8B,IAAa;;mCACiC,IAAE;GAC9E;EAED,AAAA,uBAOC,CAPmC,MAAgB,EAAE,UAAmB;;mCAGrE,UAAQ;mCACR,MAAI;;wEACJ,MAAI;;GAEP;EAGD,AAAA,kBAMC,4BAN8B,YAAqB;kEAEhD;;;;;;;;;;;uIAAS;;;;IAGX;;;;;;;;;;2HAA4B,YAAU;;;;;wEAA3B;;GACZ;EAGD,AAAA,mBAMC,4BAN+B,WAAmB;UAC3C,MAAwB;UACxB,UAAgC;UAChC,YAAiD,gCAAf,MAAI,EAAE,UAAQ;oDAC/C;;;;;;;;;;;2KAA4B,YAAU;;;;yHAA3B;;UACF,GAAuB,GAAvB,MAAI,eAAJ,GAAuB,IAAT,WAAS;GACxC;;;;;;;;;;;;;;;;;;;;IAxCD;qCAAA;;;;;;;;;;;0GAAmC;KAAA;IACnC;;;;;uCAAA;;;;;;;;;;;;;;;;4GAA0C;;;;;;uCAA1C;;;;;;;;;;;;4GAA0C;;;;;;;;;;;;;;uCAA1C;;;;;;;;;;;;;;;4GAA0C;;;;;;;;;KAAA;;;;;;;;;;;;EAU1C,AAAA,eAEC;;;;UAF8B,IAAa;;;;;;;;6CAAb,IAAa;GAE3C;EAED,AAAA,oBAOC;;;;UAPmC,MAAgB;UAAE,UAAmB;;;;;;;;;;;;;;;kDAArC,MAAgB,EAAE,UAAmB;GAOxE;;;;"
+}

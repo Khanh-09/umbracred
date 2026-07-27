@@ -14,7 +14,7 @@ export ledger issuerKey: Bytes<32>;
 export ledger credentials: Set<Bytes<32>>;
 
 constructor(initialIssuerKey: Bytes<32>) {
-  issuerKey = initialIssuerKey;
+  issuerKey = disclose(initialIssuerKey);
 }
 
 witness localIssuerSecretKey(): Bytes<32>;
@@ -48,6 +48,6 @@ export circuit proveEligibility(threshold: Uint<16>): Boolean {
   const cred = localCredential();
   const ownerKey = localOwnerSecretKey();
   const commitment = credentialCommitment(cred, ownerKey);
-  assert(credentials.member(commitment), "Credential commitment not found on ledger");
+  assert(credentials.member(disclose(commitment)), "Credential commitment not found on ledger");
   return disclose(cred.score >= threshold);
 }
