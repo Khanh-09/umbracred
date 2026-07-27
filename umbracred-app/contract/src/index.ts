@@ -15,15 +15,15 @@
 
 import { CompiledContract } from "@midnight-ntwrk/midnight-js-protocol/compact-js";
 
-export * from "./managed/bboard/contract/index.js";
+export * from "./managed/umbra-cred/contract/index.js";
 export * from "./witnesses";
 
-import * as CompiledBBoardContract from "./managed/bboard/contract/index.js";
+import * as CompiledUmbraCredContract from "./managed/umbra-cred/contract/index.js";
 import * as Witnesses from "./witnesses";
 
-export const CompiledBBoardContractContract = CompiledContract.make<
-  CompiledBBoardContract.Contract<Witnesses.BBoardPrivateState>
->("BBoard", CompiledBBoardContract.Contract<Witnesses.BBoardPrivateState>).pipe(
+export const CompiledUmbraCredContractContract = CompiledContract.make<
+  CompiledUmbraCredContract.Contract<Witnesses.UmbraCredPrivateState>
+>("UmbraCred", CompiledUmbraCredContract.Contract<Witnesses.UmbraCredPrivateState>).pipe(
   CompiledContract.withWitnesses(Witnesses.witnesses),
-  CompiledContract.withCompiledFileAssets("./managed/bboard"),
+  CompiledContract.withCompiledFileAssets("./managed/umbra-cred"),
 );
