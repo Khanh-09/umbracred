@@ -27,7 +27,7 @@ import { type Config, StandaloneConfig } from './config.js';
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import { assertIsContractAddress, toHex } from '@midnight-ntwrk/midnight-js-utils';
-import { TestEnvironment } from '@midnight-ntwrk/testkit-js';
+import { TestEnvironment, StaticProofServerContainer } from '@midnight-ntwrk/testkit-js';
 import { MidnightWalletProvider } from './midnight-wallet-provider';
 import { randomBytes } from '../../api/src/utils';
 import { unshieldedToken } from '@midnight-ntwrk/midnight-js-protocol/ledger';
@@ -267,7 +267,12 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
   const rli = createInterface({ input, output, terminal: true });
   const providersToBeStopped: MidnightWalletProvider[] = [];
   try {
-    const envConfiguration = await testEnv.start();
+    // Reuse an already-running proof server on :6300 instead of letting testcontainers spin up a
+    // fresh one — a fresh container needs several minutes to download ZK parameters on first boot,
+    // which exceeds testcontainers' port-bind timeout on a slow connection.
+    const envConfiguration = await testEnv.start(
+      config instanceof StandaloneConfig ? undefined : new StaticProofServerContainer(6300),
+    );
     logger.info(`Environment started with configuration: ${JSON.stringify(envConfiguration)}`);
     const seed = await buildWallet(config, rli, logger);
     if (seed === undefined) {
@@ -291,8 +296,13 @@ export const run = async (config: Config, testEnv: TestEnvironment, logger: Logg
       const dustGeneration = await generateDust(logger, seed, unshieldedState, walletFacade);
       if (dustGeneration) {
         logger.info(`Submitted dust generation registration transaction: ${dustGeneration}`);
-        await syncWallet(logger, walletFacade);
       }
+      // Whether registration just happened or was already done in a prior run, a fresh full sync
+      // is required before spending dust: cold-starting straight into a transaction can read a
+      // nonzero dust balance yet still fail to balance it, because the merkle roots needed to
+      // construct spend proofs get pruned (~1h) if the wallet wasn't kept continuously synced.
+      logger.info('Waiting for a full wallet sync so dust spend proofs are fresh (this can take a while)...');
+      await syncWallet(logger, walletFacade);
     }
 
     const zkConfigProvider = new NodeZkConfigProvider<'issueCredential' | 'proveEligibility'>(config.zkConfigPath);

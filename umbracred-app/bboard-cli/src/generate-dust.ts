@@ -21,6 +21,7 @@ import { Logger } from 'pino';
 import { HDWallet, Roles } from '@midnight-ntwrk/wallet-sdk-hd';
 import { getNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 import * as rx from 'rxjs';
+import { submitTransactionWithRetry } from './wallet-utils';
 
 export const getUnshieldedSeed = (seed: string): Uint8Array<ArrayBufferLike> => {
   const seedBuffer = Buffer.from(seed, 'hex');
@@ -46,7 +47,10 @@ export const generateDust = async (
   unshieldedState: UnshieldedWalletState,
   walletFacade: WalletFacade,
 ) => {
-  const dustState = await walletFacade.dust.waitForSyncedState();
+  // getAddress() only derives the address from keys - it doesn't require a full historical
+  // dust-generation sync like waitForSyncedState() does, which is unnecessarily slow (and
+  // memory-heavy) on a long-lived public testnet.
+  const dustAddress = await walletFacade.dust.getAddress();
   const networkId = getNetworkId();
   const unshieldedKeystore = createKeystore(getUnshieldedSeed(walletSeed), networkId);
   const utxos = unshieldedState.availableCoins.filter((coin) => !coin.meta.registeredForDustGeneration);
@@ -62,10 +66,10 @@ export const generateDust = async (
     utxos,
     unshieldedKeystore.getPublicKey(),
     (payload) => unshieldedKeystore.signData(payload),
-    dustState.address,
+    dustAddress,
   );
   const transaction = await walletFacade.finalizeRecipe(recipe);
-  const txId = await walletFacade.submitTransaction(transaction);
+  const txId = await submitTransactionWithRetry(logger, () => walletFacade.submitTransaction(transaction));
 
   const dustBalance = await rx.firstValueFrom(
     walletFacade.state().pipe(

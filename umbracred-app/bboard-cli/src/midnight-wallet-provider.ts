@@ -26,7 +26,7 @@ import { ttlOneHour } from '@midnight-ntwrk/midnight-js-utils';
 import { type WalletFacade } from '@midnight-ntwrk/wallet-sdk-facade';
 import type { Logger } from 'pino';
 
-import { getInitialShieldedState } from './wallet-utils';
+import { getInitialShieldedState, submitTransactionWithRetry } from './wallet-utils';
 import { type DustWalletOptions, type EnvironmentConfiguration, FluentWalletBuilder } from '@midnight-ntwrk/testkit-js';
 
 type UnshieldedKeystore = {
@@ -81,7 +81,7 @@ export class MidnightWalletProvider implements MidnightProvider, WalletProvider 
   }
 
   submitTx(tx: FinalizedTransaction): Promise<string> {
-    return this.wallet.submitTransaction(tx);
+    return submitTransactionWithRetry(this.logger, () => this.wallet.submitTransaction(tx));
   }
 
   // We do not wait for funds here; the CLI flow handles it explicitly.
