@@ -23,7 +23,10 @@ import * as Witnesses from "./witnesses";
 
 export const CompiledUmbraCredContractContract = CompiledContract.make<
   CompiledUmbraCredContract.Contract<Witnesses.UmbraCredPrivateState>
->("UmbraCred", CompiledUmbraCredContract.Contract<Witnesses.UmbraCredPrivateState>).pipe(
+>(
+  "UmbraCred",
+  CompiledUmbraCredContract.Contract<Witnesses.UmbraCredPrivateState>,
+).pipe(
   CompiledContract.withWitnesses(Witnesses.witnesses),
   CompiledContract.withCompiledFileAssets("./managed/umbra-cred"),
 );

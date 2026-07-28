@@ -141,7 +141,10 @@ export class UmbraCredAPI implements DeployedUmbraCredAPI {
     if (!privateState) {
       throw new Error('No private state available to issue a credential for.');
     }
-    const commitment = UmbraCred.pureCircuits.credentialCommitment(privateState.credential, privateState.ownerSecretKey);
+    const commitment = UmbraCred.pureCircuits.credentialCommitment(
+      privateState.credential,
+      privateState.ownerSecretKey,
+    );
     await this.issueCredential(commitment);
   }
 

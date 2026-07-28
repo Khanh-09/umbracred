@@ -28,14 +28,17 @@ export class UmbraCredSimulator {
   ) {
     this.contract = new Contract<UmbraCredPrivateState>(witnesses);
     const initialIssuerKey = pureCircuits.issuerPublicKey(issuerSecretKey);
-    const { currentPrivateState, currentContractState, currentZswapLocalState } =
-      this.contract.initialState(
-        createConstructorContext(
-          { issuerSecretKey, ownerSecretKey, credential },
-          "0".repeat(64),
-        ),
-        initialIssuerKey,
-      );
+    const {
+      currentPrivateState,
+      currentContractState,
+      currentZswapLocalState,
+    } = this.contract.initialState(
+      createConstructorContext(
+        { issuerSecretKey, ownerSecretKey, credential },
+        "0".repeat(64),
+      ),
+      initialIssuerKey,
+    );
     this.circuitContext = {
       currentPrivateState,
       currentZswapLocalState,
@@ -76,7 +79,10 @@ export class UmbraCredSimulator {
     return result.result;
   }
 
-  public commitmentFor(credential: Credential, ownerKey: Uint8Array): Uint8Array {
+  public commitmentFor(
+    credential: Credential,
+    ownerKey: Uint8Array,
+  ): Uint8Array {
     return pureCircuits.credentialCommitment(credential, ownerKey);
   }
 }

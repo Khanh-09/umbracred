@@ -130,7 +130,9 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
 
     if (credentialDeployment.status === 'failed') {
       setErrorMessage(
-        credentialDeployment.error.message.length ? credentialDeployment.error.message : 'Encountered an unexpected error.',
+        credentialDeployment.error.message.length
+          ? credentialDeployment.error.message
+          : 'Encountered an unexpected error.',
       );
       return;
     }

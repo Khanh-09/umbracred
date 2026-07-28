@@ -66,7 +66,10 @@ export interface FailedCredentialDeployment {
 /**
  * An UmbraCred contract deployment.
  */
-export type CredentialDeployment = InProgressCredentialDeployment | DeployedCredentialDeployment | FailedCredentialDeployment;
+export type CredentialDeployment =
+  | InProgressCredentialDeployment
+  | DeployedCredentialDeployment
+  | FailedCredentialDeployment;
 
 /**
  * Provides access to UmbraCred deployments.
