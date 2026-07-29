@@ -15,26 +15,60 @@
 
 import { createTheme, alpha } from '@mui/material';
 
-const midnightGrey = alpha('#a8a8a8', 0.7);
-
 export const theme = createTheme({
   typography: {
-    fontFamily: 'Helvetica',
+    fontFamily: '"Inter", "Helvetica Neue", Helvetica, Arial, sans-serif',
     allVariants: {
-      color: 'white',
+      color: '#f2f0ff',
     },
+    h1: { fontWeight: 700 },
+    overline: { letterSpacing: 1.2, fontWeight: 600 },
+  },
+  shape: {
+    borderRadius: 14,
   },
   palette: {
+    mode: 'dark',
     primary: {
-      main: midnightGrey,
-      light: alpha(midnightGrey, 0.5),
-      dark: alpha(midnightGrey, 0.9),
+      main: '#9d8cff',
+      light: '#c3b8ff',
+      dark: '#6f5cd1',
+      contrastText: '#100c26',
     },
     secondary: {
-      main: '#8c8c8c',
+      main: '#3fe3c9',
+    },
+    success: {
+      main: '#3ddc84',
+    },
+    error: {
+      main: '#ff6b7a',
+    },
+    warning: {
+      main: '#ffb454',
     },
     background: {
-      default: '#464655',
+      default: '#0e0b21',
+      paper: '#1b1640',
+    },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#1b1640',
+          backgroundImage: `linear-gradient(160deg, ${alpha('#9d8cff', 0.12)}, transparent 60%)`,
+          border: `1px solid ${alpha('#9d8cff', 0.25)}`,
+          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.45)',
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        notchedOutline: {
+          borderColor: alpha('#9d8cff', 0.4),
+        },
+      },
     },
   },
 });

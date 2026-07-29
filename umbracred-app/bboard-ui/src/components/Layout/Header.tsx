@@ -24,7 +24,9 @@ export const Header: React.FC = () => (
     position="static"
     data-testid="header"
     sx={{
-      backgroundColor: '#000',
+      backgroundColor: 'rgba(14, 11, 33, 0.8)',
+      backdropFilter: 'blur(6px)',
+      borderBottom: '1px solid rgba(157, 140, 255, 0.2)',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',

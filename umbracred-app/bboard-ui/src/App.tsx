@@ -25,7 +25,12 @@ const App: React.FC = () => {
   }, [credentialApiProvider]);
 
   return (
-    <Box sx={{ background: '#000', minHeight: '100vh' }}>
+    <Box
+      sx={{
+        background: 'radial-gradient(circle at 20% 0%, #241d54 0%, #0e0b21 55%)',
+        minHeight: '100vh',
+      }}
+    >
       <MainLayout>
         {credentialDeployments.map((credentialDeployment, idx) => (
           <div data-testid={`credential-${idx}`} key={`credential-${idx}`}>
