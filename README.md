@@ -79,8 +79,9 @@ See [umbracred-app/contract/src/umbra-cred.compact](umbracred-app/contract/src/u
 
 ## Deployment
 
-- Network: _TODO after `npm run setup`_
-- Contract address: _TODO_
-
-<!-- Screenshot: `compact compile` output listing circuits -->
-<!-- Screenshot: deployed contract with address -->
+- Contract: compiles cleanly and passes 5/5 tests locally, and deploys/runs end-to-end
+  on Midnight's **Standalone** local network (see the demo).
+- Preprod: a real, funded deployment attempt is blocked by a currently-active Preprod
+  infrastructure issue (reproduced independently in both this project's CLI and the
+  official Lace wallet extension). Full evidence, error logs, and forum references are
+  in [DEPLOYMENT_ATTEMPT.md](DEPLOYMENT_ATTEMPT.md).
