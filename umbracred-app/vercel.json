@@ -1,0 +1,5 @@
+{
+  "installCommand": "npm ci --legacy-peer-deps",
+  "buildCommand": "npm run build --workspace=contract && npm run build --workspace=bboard-ui",
+  "outputDirectory": "bboard-ui/dist"
+}
