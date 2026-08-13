@@ -8,7 +8,10 @@ Hiring platforms, gated courses, and private communities all need a way to check
 
 ## Status
 
-🌑 **Level 1 — New Moon.** Toolchain set up, first contract written, compiled, and deployed to Preview/Preprod.
+🌑 **Level 1 — New Moon.** Toolchain set up, first contract written, compiled, tested, and
+deployed end-to-end on Midnight's Standalone network. A funded deployment attempt on
+Preprod is blocked by a documented infrastructure issue — see
+[DEPLOYMENT_ATTEMPT.md](DEPLOYMENT_ATTEMPT.md).
 
 ## Setup
 
