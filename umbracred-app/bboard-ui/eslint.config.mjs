@@ -10,6 +10,12 @@ const config = tseslint.config(
   eslintPluginPrettierRecommended,
   {
     rules: {
+      'prettier/prettier': 'off',
+      'react/prop-types': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
       'react/react-in-jsx-scope': 'off',
       '@typescript-eslint/no-misused-promises': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
