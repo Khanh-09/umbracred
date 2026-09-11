@@ -5,19 +5,15 @@ import {
   CardContent,
   Chip,
   Container,
-  Divider,
-  Grid,
   Paper,
   Stack,
   Tab,
   Tabs,
   Typography,
 } from '@mui/material';
-import LockIcon from '@mui/icons-material/LockOutlined';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOffOutlined';
 import CodeIcon from '@mui/icons-material/CodeOutlined';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 export const PrivacyInspector: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -92,12 +88,12 @@ export const PrivacyInspector: React.FC = () => {
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
-                  <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 2 }}>
                     <VisibilityIcon sx={{ color: '#00f0ff', fontSize: 24 }} />
                     <Typography variant="h6" sx={{ color: '#00f0ff', fontWeight: 700 }}>
                       Public On-Chain Ledger State
                     </Typography>
-                  </Stack>
+                  </Box>
                   <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.8)', mb: 3 }}>
                     Stored permanently on Midnight’s public ledger. Visible to any validator or verifier.
                   </Typography>
@@ -141,12 +137,12 @@ export const PrivacyInspector: React.FC = () => {
                 }}
               >
                 <CardContent sx={{ p: 3 }}>
-                  <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 2 }}>
                     <VisibilityOffIcon sx={{ color: '#a48eff', fontSize: 24 }} />
                     <Typography variant="h6" sx={{ color: '#a48eff', fontWeight: 700 }}>
                       Private Off-Chain Witnesses (100% Confidential)
                     </Typography>
-                  </Stack>
+                  </Box>
                   <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.8)', mb: 3 }}>
                     Resides exclusively in local browser/wallet memory. Never broadcast to the network.
                   </Typography>

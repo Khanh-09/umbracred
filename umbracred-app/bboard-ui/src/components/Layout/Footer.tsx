@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Divider, Link, Stack, Typography } from '@mui/material';
+import { Box, Container, Divider, Link, Typography } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
@@ -25,12 +25,12 @@ export const Footer: React.FC = () => {
           }}
         >
           <Box>
-            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5, alignItems: 'center', mb: 1.5 }}>
               <img src="/midnight-logo.png" alt="Midnight Logo" height={36} />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#ffffff' }}>
                 UmbraCred
               </Typography>
-            </Stack>
+            </Box>
             <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.7)', maxWidth: 360, lineHeight: 1.6 }}>
               Confidential Zero-Knowledge credential verification built on Midnight Network with Compact Smart Contracts.
             </Typography>
@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
             <Typography variant="overline" sx={{ color: '#00f0ff', mb: 2, display: 'block' }}>
               PROTOCOL
             </Typography>
-            <Stack spacing={1}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Link href="https://midnight.network" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                 Midnight Network
               </Link>
@@ -50,14 +50,14 @@ export const Footer: React.FC = () => {
               <Link href="https://preprod.midnightexplorer.com" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                 Preprod Explorer
               </Link>
-            </Stack>
+            </Box>
           </Box>
 
           <Box>
             <Typography variant="overline" sx={{ color: '#00f0ff', mb: 2, display: 'block' }}>
               RESOURCES
             </Typography>
-            <Stack spacing={1}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               <Link href="https://github.com/midnightntwrk/compact" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                 Compact Compiler
               </Link>
@@ -67,40 +67,40 @@ export const Footer: React.FC = () => {
               <Link href="https://github.com/Khanh-09/umbracred" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                 GitHub Repository
               </Link>
-            </Stack>
+            </Box>
           </Box>
 
           <Box>
             <Typography variant="overline" sx={{ color: '#00f0ff', mb: 2, display: 'block' }}>
               COMMUNITY
             </Typography>
-            <Stack spacing={1.5}>
-              <Stack direction="row" spacing={1} alignItems="center">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
                 <GitHubIcon sx={{ fontSize: 18, color: '#a48eff' }} />
                 <Link href="https://github.com/Khanh-09/umbracred" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                   Open Source
                 </Link>
-              </Stack>
-              <Stack direction="row" spacing={1} alignItems="center">
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
                 <MenuBookIcon sx={{ fontSize: 18, color: '#a48eff' }} />
                 <Link href="https://midnight.network" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                   Lace Wallet
                 </Link>
-              </Stack>
-            </Stack>
+              </Box>
+            </Box>
           </Box>
         </Box>
 
         <Divider sx={{ borderColor: 'rgba(124, 92, 255, 0.15)', mb: 3 }} />
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" spacing={2}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
           <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.5)' }}>
             © {new Date().getFullYear()} UmbraCred • Released under the MIT License • Built for Midnight Hackathon
           </Typography>
           <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.5)', fontFamily: '"JetBrains Mono", monospace' }}>
             Compact v0.31.0 • Midnight.js v4.1.1
           </Typography>
-        </Stack>
+        </Box>
       </Container>
     </Box>
   );

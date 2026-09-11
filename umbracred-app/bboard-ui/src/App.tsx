@@ -79,7 +79,7 @@ const App: React.FC = () => {
         </Box>
 
         {activeTab === 0 && (
-          <Stack spacing={4} alignItems="center">
+          <Stack spacing={4} sx={{ alignItems: 'center' }}>
             {credentialDeployments.map((credentialDeployment, idx) => (
               <Box data-testid={`credential-${idx}`} key={`credential-${idx}`} sx={{ width: '100%' }}>
                 <CredentialCard credentialDeployment$={credentialDeployment} />

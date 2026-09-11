@@ -136,33 +136,6 @@ export const theme = createTheme({
           letterSpacing: '0.02em',
           transition: 'all 0.25s ease',
         },
-        containedPrimary: {
-          background: 'linear-gradient(135deg, #7c5cff 0%, #583be8 100%)',
-          boxShadow: '0 8px 24px rgba(124, 92, 255, 0.35)',
-          '&:hover': {
-            background: 'linear-gradient(135deg, #8f72ff 0%, #684bf5 100%)',
-            boxShadow: '0 12px 30px rgba(124, 92, 255, 0.55)',
-            transform: 'translateY(-1px)',
-          },
-        },
-        containedSecondary: {
-          background: 'linear-gradient(135deg, #00f0ff 0%, #00b4d8 100%)',
-          color: '#080712',
-          fontWeight: 700,
-          boxShadow: '0 8px 24px rgba(0, 240, 255, 0.3)',
-          '&:hover': {
-            background: 'linear-gradient(135deg, #33f3ff 0%, #00c2e8 100%)',
-            boxShadow: '0 12px 30px rgba(0, 240, 255, 0.5)',
-            transform: 'translateY(-1px)',
-          },
-        },
-        outlined: {
-          borderColor: 'rgba(124, 92, 255, 0.35)',
-          '&:hover': {
-            borderColor: '#7c5cff',
-            backgroundColor: 'rgba(124, 92, 255, 0.08)',
-          },
-        },
       },
     },
     MuiChip: {

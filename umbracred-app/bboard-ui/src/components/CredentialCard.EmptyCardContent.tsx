@@ -7,7 +7,6 @@ import {
   Chip,
   Divider,
   Paper,
-  Stack,
   Typography,
 } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
@@ -72,12 +71,12 @@ export const EmptyCardContent: React.FC<Readonly<EmptyCardContentProps>> = ({
             },
           }}
         >
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5, alignItems: 'center', mb: 1 }}>
             <VerifiedUserIcon sx={{ color: '#00e676' }} />
             <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#ffffff' }}>
               Senior Engineer Preset
             </Typography>
-          </Stack>
+          </Box>
           <Typography variant="body2" sx={{ color: '#b0a6e0', mb: 2 }}>
             Score: <strong style={{ color: '#00e676' }}>92 / 100</strong> • Top-tier candidate benchmark for senior hiring gates.
           </Typography>
@@ -104,12 +103,12 @@ export const EmptyCardContent: React.FC<Readonly<EmptyCardContentProps>> = ({
             },
           }}
         >
-          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5, alignItems: 'center', mb: 1 }}>
             <SchoolIcon sx={{ color: '#00f0ff' }} />
             <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#ffffff' }}>
               Course Graduate Preset
             </Typography>
-          </Stack>
+          </Box>
           <Typography variant="body2" sx={{ color: '#b0a6e0', mb: 2 }}>
             Score: <strong style={{ color: '#00f0ff' }}>75 / 100</strong> • Standard certification benchmark for prerequisites.
           </Typography>
@@ -125,7 +124,7 @@ export const EmptyCardContent: React.FC<Readonly<EmptyCardContentProps>> = ({
         </Typography>
       </Divider>
 
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center' }}>
         <Button
           variant="outlined"
           color="primary"
@@ -146,7 +145,7 @@ export const EmptyCardContent: React.FC<Readonly<EmptyCardContentProps>> = ({
         >
           Join Existing Contract
         </Button>
-      </Stack>
+      </Box>
 
       <TextPromptDialog
         prompt="Enter custom credential score (0 - 65535):"

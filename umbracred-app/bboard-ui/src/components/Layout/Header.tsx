@@ -18,7 +18,7 @@ import { AppBar, Box, Button, Chip, CircularProgress, Tooltip, Typography } from
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import ErrorOutlineIcon from '@mui/icons-material/Error';
 import { useDeployedCredentialContext } from '../../hooks';
 import { type WalletState } from '../../contexts';
 

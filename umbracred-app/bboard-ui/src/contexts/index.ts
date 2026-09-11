@@ -1,2 +1,2 @@
-export type { CredentialDeployment, DeployedCredentialAPIProvider } from './BrowserUmbraCredManager';
+export type { CredentialDeployment, DeployedCredentialAPIProvider, WalletState } from './BrowserUmbraCredManager';
 export * from './DeployedCredentialContext';

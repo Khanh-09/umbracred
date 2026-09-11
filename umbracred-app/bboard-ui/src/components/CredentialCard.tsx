@@ -6,19 +6,15 @@ import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
-  CardHeader,
   Chip,
   CircularProgress,
   Collapse,
   Divider,
-  Grid,
   IconButton,
   LinearProgress,
   Paper,
   Skeleton,
-  Stack,
   TextField,
   Tooltip,
   Typography,
@@ -34,7 +30,7 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import KeyIcon from '@mui/icons-material/VpnKeyOutlined';
 import BoltIcon from '@mui/icons-material/Bolt';
 import { type UmbraCredDerivedState, type DeployedUmbraCredAPI } from '../../../api/src/index';
-import { type UmbraCredPrivateState } from '@midnight-ntwrk/bboard-contract';
+import { type UmbraCredPrivateState } from '../../../contract/src/index';
 import { useDeployedCredentialContext } from '../hooks';
 import { type CredentialDeployment } from '../contexts';
 import { type Observable } from 'rxjs';
@@ -207,7 +203,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
             }}
           >
             <Box>
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center', mb: 0.5 }}>
                 <Chip
                   label="ACTIVE CONTRACT"
                   size="small"
@@ -223,7 +219,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
                 <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)' }}>
                   Midnight Compact v0.31
                 </Typography>
-              </Stack>
+              </Box>
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -250,29 +246,31 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
               </Typography>
             </Box>
 
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              startIcon={<HowToRegIcon />}
-              onClick={onIssueCredential}
-              data-testid="credential-issue-btn"
-              disabled={isWorking}
-              sx={{ fontWeight: 700 }}
-            >
-              Issue Credential Commitment
-            </Button>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                startIcon={<HowToRegIcon />}
+                onClick={onIssueCredential}
+                disabled={isWorking || !deployedAPI}
+                data-testid="credential-issue-btn"
+                sx={{ fontWeight: 600 }}
+              >
+                Register Credential
+              </Button>
+            </Box>
           </Box>
 
-          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+          <CardContent sx={{ p: 3 }}>
+            {/* Status alerts */}
             {errorMessage && (
-              <Alert severity="error" onClose={() => setErrorMessage(undefined)} sx={{ mb: 3, borderRadius: 2 }}>
+              <Alert severity="error" sx={{ mb: 3 }} onClose={() => setErrorMessage(undefined)}>
                 {errorMessage}
               </Alert>
             )}
-
             {successMessage && (
-              <Alert severity="success" onClose={() => setSuccessMessage(undefined)} sx={{ mb: 3, borderRadius: 2 }}>
+              <Alert severity="success" sx={{ mb: 3 }} onClose={() => setSuccessMessage(undefined)}>
                 {successMessage}
               </Alert>
             )}
@@ -288,18 +286,18 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
                 borderRadius: 3,
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center', mb: 2 }}>
                 <SecurityIcon sx={{ color: '#00f0ff' }} />
                 <Typography variant="h6" sx={{ fontWeight: 700, color: '#ffffff' }}>
                   Zero-Knowledge Eligibility Gate
                 </Typography>
-              </Stack>
+              </Box>
               <Typography variant="body2" sx={{ color: '#b0a6e0', mb: 2.5 }}>
                 Prove to any verifier that your hidden credential satisfies <code style={{ color: '#00f0ff' }}>score &gt;= threshold</code> without disclosing the real score.
               </Typography>
 
               {/* Preset threshold pills */}
-              <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, mb: 2 }}>
                 <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', alignSelf: 'center', mr: 0.5 }}>
                   PRESETS:
                 </Typography>
@@ -317,7 +315,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
                     sx={{ cursor: 'pointer', fontFamily: '"JetBrains Mono", monospace' }}
                   />
                 ))}
-              </Stack>
+              </Box>
 
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr auto' }, gap: 2, alignItems: 'center' }}>
                 <TextField
@@ -398,18 +396,18 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
                   height: '100%',
                 }}
               >
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center', mb: 1.5 }}>
                   <VisibilityIcon sx={{ color: '#00f0ff', fontSize: 20 }} />
                   <Typography variant="subtitle2" sx={{ color: '#00f0ff', fontWeight: 700 }}>
                     What Any Observer Sees
                   </Typography>
-                </Stack>
+                </Box>
                 <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', display: 'block', mb: 2 }}>
                   Public on-chain ledger state
                 </Typography>
 
                 {derivedState ? (
-                  <Stack spacing={1.5}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     <Box>
                       <Typography variant="caption" sx={{ color: '#b0a6e0' }}>
                         Approved Issuer Public Key:
@@ -426,7 +424,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
                         {derivedState.credentialCount.toString()} commitment(s)
                       </Typography>
                     </Box>
-                  </Stack>
+                  </Box>
                 ) : (
                   <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2 }} />
                 )}
@@ -443,52 +441,52 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
                   height: '100%',
                 }}
               >
-                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <VisibilityOffIcon sx={{ color: '#a48eff', fontSize: 20 }} />
-                      <Typography variant="subtitle2" sx={{ color: '#a48eff', fontWeight: 700 }}>
-                        Your Private Witness
-                      </Typography>
-                    </Stack>
-                    <Button
-                      size="small"
-                      variant="text"
-                      onClick={onTogglePrivateState}
-                      data-testid="credential-toggle-private-state"
-                      sx={{ fontSize: '0.75rem', p: 0.5, color: '#a48eff' }}
-                    >
-                      {showPrivateState ? 'Hide' : 'Inspect'}
-                    </Button>
-                  </Stack>
-                  <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', display: 'block', mb: 2 }}>
-                    Client-side browser state (Never sent on-chain)
-                  </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
+                    <VisibilityOffIcon sx={{ color: '#a48eff', fontSize: 20 }} />
+                    <Typography variant="subtitle2" sx={{ color: '#a48eff', fontWeight: 700 }}>
+                      Your Private Witness
+                    </Typography>
+                  </Box>
+                  <Button
+                    size="small"
+                    variant="text"
+                    onClick={onTogglePrivateState}
+                    data-testid="credential-toggle-private-state"
+                    sx={{ fontSize: '0.75rem', p: 0.5, color: '#a48eff' }}
+                  >
+                    {showPrivateState ? 'Hide' : 'Inspect'}
+                  </Button>
+                </Box>
+                <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', display: 'block', mb: 2 }}>
+                  Client-side browser state (Never sent on-chain)
+                </Typography>
 
-                  <Collapse in={showPrivateState}>
-                    {privateState ? (
-                      <Stack spacing={1} sx={{ p: 1.5, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2 }}>
-                        <Typography variant="caption" sx={{ color: '#00e676', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-score">
-                          raw_score: {privateState.credential.score.toString()} / 100
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#b0a6e0', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-salt">
-                          salt: 0x{toHex(privateState.credential.salt).slice(0, 12)}...
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#b0a6e0', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-owner-key">
-                          owner_sk: 0x{toHex(privateState.ownerSecretKey).slice(0, 12)}...
-                        </Typography>
-                      </Stack>
-                    ) : (
-                      <Typography variant="caption" sx={{ color: '#ffaa00' }}>
-                        Loading local witness data...
+                <Collapse in={showPrivateState}>
+                  {privateState ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, p: 1.5, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2 }}>
+                      <Typography variant="caption" sx={{ color: '#00e676', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-score">
+                        raw_score: {privateState.credential.score.toString()} / 100
                       </Typography>
-                    )}
-                  </Collapse>
-                  {!showPrivateState && (
-                    <Typography variant="body2" sx={{ color: '#b0a6e0', fontStyle: 'italic' }}>
-                      Protected by Midnight ZK circuits. Click "Inspect" to view local witnesses.
+                      <Typography variant="caption" sx={{ color: '#b0a6e0', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-salt">
+                        salt: 0x{toHex(privateState.credential.salt).slice(0, 12)}...
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#b0a6e0', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-owner-key">
+                        owner_sk: 0x{toHex(privateState.ownerSecretKey).slice(0, 12)}...
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Typography variant="caption" sx={{ color: '#ffaa00' }}>
+                      Loading local witness data...
                     </Typography>
                   )}
-                </Paper>
+                </Collapse>
+                {!showPrivateState && (
+                  <Typography variant="body2" sx={{ color: '#b0a6e0', fontStyle: 'italic' }}>
+                    Protected by Midnight ZK circuits. Click "Inspect" to view local witnesses.
+                  </Typography>
+                )}
+              </Paper>
             </Box>
           </CardContent>
         </React.Fragment>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Chip, Container, Grid, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Chip, Container, Paper, Typography } from '@mui/material';
 import ShieldIcon from '@mui/icons-material/SecurityOutlined';
 import BoltIcon from '@mui/icons-material/BoltOutlined';
 import LockIcon from '@mui/icons-material/LockOutlined';
@@ -25,7 +25,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
     >
       <Container maxWidth="lg">
         <Box sx={{ textAlign: 'center', maxWidth: 860, mx: 'auto', mb: 4 }}>
-          <Stack direction="row" spacing={1} justifyContent="center" sx={{ mb: 2.5 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, justifyContent: 'center', mb: 2.5 }}>
             <Chip
               icon={<ShieldIcon sx={{ fontSize: '1rem !important', color: '#00f0ff !important' }} />}
               label="Midnight Zero-Knowledge Protocol"
@@ -50,7 +50,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
                 fontSize: '0.78rem',
               }}
             />
-          </Stack>
+          </Box>
 
           <Typography
             variant="h1"
@@ -83,7 +83,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
             <strong> the verifier learns only a boolean yes/no, never the underlying score, salt, or identity.</strong>
           </Typography>
 
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" alignItems="center">
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center' }}>
             <Button
               variant="contained"
               color="primary"
@@ -103,7 +103,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
             >
               Inspect ZK Privacy Model
             </Button>
-          </Stack>
+          </Box>
         </Box>
 
         {/* Live Metrics Grid */}
@@ -118,12 +118,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
               textAlign: 'left',
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 1 }}>
               <BoltIcon sx={{ color: '#00f0ff', fontSize: 22 }} />
               <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
                 PROVING SPEED
               </Typography>
-            </Stack>
+            </Box>
             <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
               ~1.2s Local ZK
             </Typography>
@@ -142,12 +142,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
               textAlign: 'left',
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 1 }}>
               <ShieldIcon sx={{ color: '#7c5cff', fontSize: 22 }} />
               <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
                 PRIVACY BOUNDARY
               </Typography>
-            </Stack>
+            </Box>
             <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
               100% Zero-Knowledge
             </Typography>
@@ -166,12 +166,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
               textAlign: 'left',
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 1 }}>
               <VerifiedIcon sx={{ color: '#00e676', fontSize: 22 }} />
               <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
                 COMPACT CIRCUITS
               </Typography>
-            </Stack>
+            </Box>
             <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
               2 Active ZKIRs
             </Typography>
@@ -190,12 +190,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
               textAlign: 'left',
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 1 }}>
               <LockIcon sx={{ color: '#ffaa00', fontSize: 22 }} />
               <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
                 NETWORK TARGET
               </Typography>
-            </Stack>
+            </Box>
             <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
               Preprod & Standalone
             </Typography>

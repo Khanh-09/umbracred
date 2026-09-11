@@ -35,7 +35,7 @@ import {
   Transaction,
   TransactionId,
 } from '@midnight-ntwrk/midnight-js-protocol/ledger';
-import { type UmbraCredPrivateState } from '@midnight-ntwrk/bboard-contract';
+import { type UmbraCredPrivateState } from '../../../contract/src/index';
 import { inMemoryPrivateStateProvider } from '../in-memory-private-state-provider';
 import { NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 import type { UnboundTransaction } from '@midnight-ntwrk/midnight-js-types';
