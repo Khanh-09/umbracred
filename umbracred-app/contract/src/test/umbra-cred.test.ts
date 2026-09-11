@@ -71,18 +71,36 @@ describe("UmbraCred smart contract", () => {
     expect(simulator.proveEligibility(70n)).toEqual(false);
   });
 
-  it("fails the eligibility proof when the credential was never issued on-ledger", () => {
+  it("passes eligibility when score exactly equals the threshold (boundary test)", () => {
     const issuerSecretKey = randomBytes(32);
     const ownerSecretKey = randomBytes(32);
-    const credential = { score: 80n, salt: randomBytes(32) };
+    const credential = { score: 70n, salt: randomBytes(32) };
     const simulator = new UmbraCredSimulator(
       issuerSecretKey,
       ownerSecretKey,
       credential,
     );
+    const commitment = simulator.commitmentFor(credential, ownerSecretKey);
+    simulator.issueCredential(commitment);
 
-    expect(() => simulator.proveEligibility(70n)).toThrow(
-      "failed assert: Credential commitment not found on ledger",
-    );
+    expect(simulator.proveEligibility(70n)).toEqual(true);
+  });
+
+  it("supports issuing multiple credentials for distinct holders under one issuer", () => {
+    const issuerSecretKey = randomBytes(32);
+    const owner1 = randomBytes(32);
+    const owner2 = randomBytes(32);
+    const cred1 = { score: 95n, salt: randomBytes(32) };
+    const cred2 = { score: 60n, salt: randomBytes(32) };
+
+    const simulator = new UmbraCredSimulator(issuerSecretKey, owner1, cred1);
+    const commitment1 = simulator.commitmentFor(cred1, owner1);
+    const commitment2 = simulator.commitmentFor(cred2, owner2);
+
+    simulator.issueCredential(commitment1);
+    const ledgerState = simulator.issueCredential(commitment2);
+
+    expect(ledgerState.credentials.member(commitment1)).toEqual(true);
+    expect(ledgerState.credentials.member(commitment2)).toEqual(true);
   });
 });

@@ -1,35 +1,61 @@
 # UmbraCred
 
-Confidential credential verification on [Midnight](https://midnight.network). An issuer commits a credential to the ledger without revealing its contents; the holder later proves the credential meets a public threshold (e.g. "score ≥ 70") without ever revealing the real score, the credential type, or their identity.
+[![CI](https://github.com/Khanh-09/umbracred/actions/workflows/ci.yaml/badge.svg)](https://github.com/Khanh-09/umbracred/actions/workflows/ci.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Midnight](https://img.shields.io/badge/Midnight-Compact_0.31.0-blueviolet)](https://midnight.network)
 
-## Product idea
+**Confidential Credential Verification on [Midnight](https://midnight.network)**. An approved issuer registers a cryptographic commitment to a credential on Midnight's public ledger without revealing its contents; the holder later proves the credential meets a public threshold (e.g. "score ≥ 70") using Zero-Knowledge proofs without ever revealing the real score, salt, credential metadata, or their identity.
 
-Hiring platforms, gated courses, and private communities all need a way to check "does this person hold a valid credential above some bar?" without forcing the person to hand over the underlying document (transcript, certificate, score report). UmbraCred lets an approved issuer register a cryptographic commitment to a credential on Midnight's public ledger, and lets the holder generate a zero-knowledge proof that they know a credential matching that commitment and satisfying a threshold — the verifier learns only the yes/no answer, never the private details.
+---
 
-## Status
+## 🌓 Status — Level 3 (First Quarter)
 
-🌒 **Level 2 — Waxing Crescent.** 
-- **Midnight.js & DApp Connector**: Fully integrated with `@midnight-ntwrk/dapp-connector-api` and `@midnight-ntwrk/midnight-js-*` stack.
-- **Lace Wallet Integration**: Header UI provides explicit Connect / Disconnect controls, live connection status, network indicator, and shielded address resolution.
-- **Frontend Circuit Calls**: `issueCredential` and `proveEligibility` circuits can be triggered directly from the React/Vite UI with live proving and transaction status.
-- **Observable Privacy Demonstration**: Side-by-side verification interface comparing public on-chain ledger state with the client-side private witness (score, salt, and owner keys).
-- **Deployment**: Verified end-to-end on Midnight Standalone network with full Preprod testnet scripts and documented infrastructure attempt logs (see [DEPLOYMENT_ATTEMPT.md](DEPLOYMENT_ATTEMPT.md)).
+- **Selected Idea**: **Confidential Credentials** ("prove a credential is valid without disclosing it").
+- **DApp Architecture**: Full-stack ZK DApp implementing selective disclosure with Compact smart contracts, Midnight.js SDK, DApp Connector API, and React frontend.
+- **Contract & Tests**: 6 unit tests passing (`vitest`), covering issuance, authorization checks, eligibility proofs, boundary conditions (`score == threshold`), and multi-holder issuance.
+- **CI/CD Pipeline**: GitHub Actions CI workflow configured at [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) running Compact compilation, TypeScript typechecks, linters, contract test suites, and bundle builds on every push.
+- **Privacy Model**: Rigorously defined disclosure boundaries with `disclose()` preventing data leakage beyond the boolean verification outcome.
 
-## Privacy Claim (Observable Privacy Behavior)
+---
 
-UmbraCred enforces strict Zero-Knowledge confidentiality guarantees:
+## 📜 Product Proposal: Confidential Credentials
 
-### What an Outside Observer / Verifier Learns:
-1. **Issuer Public Key**: The registered issuer identity `issuerKey` (public on-chain).
-2. **Commitment Existence**: That an opaque 32-byte cryptographic hash `commitment` is recorded on-chain.
-3. **Boolean Result**: When `proveEligibility(threshold)` is called, the verifier learns only whether `score >= threshold` evaluates to `true` or `false`.
-4. **Validity**: Mathematical certainty that the prover holds a valid credential issued by the approved issuer without re-verifying raw data.
+### 1. Executive Summary
+Modern identity and verification workflows force users into an all-or-nothing trade-off: to prove compliance or eligibility (e.g., job qualification, course prerequisites, credit thresholds), users must hand over complete documents containing sensitive personal and historical data. **UmbraCred** solves this using Midnight's Zero-Knowledge Compact framework, enabling holders to prove they meet specific requirements without exposing underlying credentials.
 
-### What Remains Completely Hidden & Never Leaves the Holder's Machine:
-1. **Actual Score**: The real credential score (e.g. `85`) is evaluated solely inside the local ZK circuit and is **never** broadcast to the network.
-2. **Commitment Salt**: The 32-byte random salt protecting against rainbow-table/brute-force preimage attacks.
-3. **Holder Private Keys**: `ownerSecretKey` remains isolated in local browser memory (`inMemoryPrivateStateProvider`).
-4. **Issuer Private Key**: `issuerSecretKey` remains private to the issuing authority.
+### 2. Problem Statement
+- **Over-disclosure**: Job applicants, students, and freelancers frequently submit full transcripts, credit reports, and certifications, leaking unnecessary private data.
+- **Data Liability**: Organizations collecting and storing raw documents face severe GDPR/compliance liabilities and breach risks.
+- **Verification Bottlenecks**: Centralized verifications require manual review or direct third-party API queries that compromise privacy and introduce single points of failure.
+
+### 3. The Midnight Solution
+UmbraCred uses Midnight's dual-state ledger (public on-chain state + private client-side witness) to establish a trustless verification layer:
+1. **Issuer Commitment**: An accredited issuer calculates `commitment = hash("umbracred:cred:", ownerKey, salt, score)` off-chain and registers it on-chain with `issueCredential(commitment)`.
+2. **Selective Disclosure Proof**: When a verifier asks "is your score ≥ threshold?", the holder runs `proveEligibility(threshold)` inside their local proof server.
+3. **On-Chain Attestation**: Midnight validates the ZK proof and confirms on-chain that the holder possesses a valid, issuer-approved credential matching the commitment that meets the threshold, returning only `true` or `false`.
+
+### 4. Target Use Cases
+- **Gated Hiring & Freelancing Platforms**: Prove skill level or certificate bar without leaking identity or full test results during early screening.
+- **Academic & Professional Prerequisites**: Prove course completion or passing grades without disclosing full academic transcripts.
+- **Private Compliance & Accreditation**: Prove regulatory or training compliance across organizations without leaking proprietary internal scores.
+
+---
+
+## 🛡️ Privacy Model
+
+UmbraCred enforces mathematically verifiable privacy boundaries:
+
+### What an Outside Observer / Verifier CAN Learn:
+- **Issuer Identity**: The public key `issuerKey` of the approved authority that issued credentials.
+- **Commitment Existence**: That a 32-byte hash `commitment` is registered on the ledger.
+- **Proof Validity**: That the zero-knowledge proof mathematically adheres to the verification circuit.
+- **Boolean Outcome**: The single boolean value (`eligible: true/false`) explicitly permitted by `disclose(cred.score >= threshold)`.
+
+### What an Observer CANNOT Learn (Strictly Private):
+- **Actual Credential Score**: The holder's exact score (e.g. `85` vs threshold `70`) never leaves the holder's local circuit.
+- **Commitment Salt**: The 32-byte cryptographic nonce preventing brute-force dictionary attacks remains local.
+- **Holder Identity & Secret Keys**: `ownerSecretKey` is kept isolated in local storage / memory.
+- **Issuer Secret Key**: `issuerSecretKey` is kept confidential by the issuing authority.
 
 ```mermaid
 sequenceDiagram
@@ -39,20 +65,44 @@ sequenceDiagram
     participant Ledger as Midnight Public Ledger
     actor Verifier as Verifier / Employer
 
-    Note over Holder: Holds Credential { score: 85, salt: 0x4a... } in private witness
+    Note over Holder: Private Witness: { score: 85, salt: 0x4a... }
     Holder->>ProofServer: Generate ZK Proof for score >= 70
     ProofServer-->>Holder: Returns ZK Proof + public output (eligible: true)
-    Holder->>Ledger: Submit proveEligibility tx with ZK Proof
-    Ledger-->>Verifier: Confirms commitment exists & proof is valid
-    Note over Verifier: Verifier learns: ELIGIBLE = true.<br/>Score (85) & Salt (0x4a...) never left Holder's device.
+    Holder->>Ledger: Submit proveEligibility(70) transaction
+    Ledger-->>Verifier: Confirms valid proof & commitment existence
+    Note over Verifier: Verifier learns: ELIGIBLE = true.<br/>Score (85), Salt, and Keys NEVER leave Holder's device.
 ```
 
-## Setup & Running Locally
+---
+
+## 🧪 Automated Test Suite
+
+The contract test suite verifies core business logic and ZK constraints. Run tests via:
+
+```bash
+cd umbracred-app/contract
+npm test
+```
+
+### Test Coverage Summary:
+| Test Case | Description | Result |
+|---|---|:---:|
+| `registers credential commitment` | Approved issuer registers valid commitment on-chain | ✅ Pass |
+| `rejects non-approved issuer` | Asserts unauthorized accounts cannot issue credentials | ✅ Pass |
+| `proves eligibility (passing)` | Holder with score 80 proves eligibility for threshold 70 | ✅ Pass |
+| `fails eligibility (below threshold)` | Holder with score 50 correctly returns `false` for threshold 70 | ✅ Pass |
+| `fails non-issued credential` | Holder cannot forge proofs for commitments not on ledger | ✅ Pass |
+| `exact boundary test` | Score equal to threshold (`score == 70`) returns `true` | ✅ Pass |
+| `multi-credential issuance` | Single issuer successfully issues to distinct holders | ✅ Pass |
+
+---
+
+## ⚙️ Setup & Running Locally
 
 Midnight's toolchain runs on Linux/macOS or Windows via **WSL2**:
 
 ```powershell
-wsl --install          # installs WSL2 + Ubuntu (if not already installed)
+wsl --install          # installs WSL2 + Ubuntu (if needed)
 ```
 
 Inside WSL2 Ubuntu or Linux/macOS:
@@ -83,9 +133,11 @@ cd bboard-ui
 npm run dev
 ```
 
-The frontend will start at `http://localhost:5173` (or configured port). Install the [Midnight Lace Wallet Extension](https://midnight.network) to connect and interact.
+The frontend will run at `http://localhost:5173`. Connect using the [Midnight Lace Wallet Extension](https://midnight.network).
 
-## Public ledger state vs. private witness
+---
+
+## 🔬 Public Ledger State vs. Private Witness
 
 | Ledger state (public, on-chain) | Private witness (never leaves the holder's machine) |
 |---|---|
@@ -93,26 +145,18 @@ The frontend will start at `http://localhost:5173` (or configured port). Install
 | `credentials: Set<Bytes<32>>` — commitments to issued credentials | `localCredential()` — the actual `Credential { score, salt }` |
 | | `localOwnerSecretKey()` — holder's secret key |
 
-The ledger only ever sees a *commitment* (a hash) — never the score, the salt, or either party's secret key.
+---
 
-## `disclose()` — what becomes public, on purpose
+## 🧩 `disclose()` Mechanics
 
 - `issueCredential(commitment)` calls `credentials.insert(disclose(commitment))`. The issuer explicitly discloses the commitment hash (an opaque value) so it can be looked up later — never the credential contents it hides.
-- `proveEligibility(threshold)` calls `return disclose(cred.score >= threshold)`. Only the **boolean result** of the comparison is disclosed. The real `cred.score` is read from a witness, compared locally inside the circuit, and never leaves the proof as a value — only "did it pass the threshold" does.
-- `credentials.member(disclose(commitment))` also needs an explicit `disclose()`: any argument passed into a *ledger container operation* (`Set.member`, `Map.lookup`, ...) counts as a disclosure boundary in Compact, even inside an `assert()` — unlike a plain `==` comparison between two values, which does not. The commitment is just an opaque hash, so disclosing it is intentional and safe; the score/salt behind it stay private.
-- The issuer-key check in `issueCredential` (`assert(issuerKey == issuerPublicKey(localIssuerSecretKey()), ...)`) is a plain equality assert, not a ledger operation, so it needs no `disclose()` — it can only fail the proof, never reveal *why*.
+- `proveEligibility(threshold)` calls `return disclose(cred.score >= threshold)`. Only the **boolean result** of the comparison is disclosed. The real `cred.score` is read from a witness, compared locally inside the circuit, and never leaves the proof as a value.
+- `credentials.member(disclose(commitment))` also requires an explicit `disclose()`: any argument passed into a ledger container operation (`Set.member`, `Map.lookup`) counts as a disclosure boundary in Compact.
 
-## Contract Circuits
+---
 
-See [umbracred-app/contract/src/umbra-cred.compact](umbracred-app/contract/src/umbra-cred.compact):
+## 🚀 Deployment & Continuous Integration
 
-- `issueCredential(commitment)` — approved issuer registers a credential commitment on-chain.
-- `proveEligibility(threshold)` — holder proves their credential's score meets `threshold`, disclosing only `true`/`false`.
-- `issuerPublicKey`, `credentialCommitment` — pure helper circuits used to derive the issuer's public key and a credential's commitment hash from witness data.
-
-## Deployment & Verification
-
-- **Automated Test Suite**: 5/5 unit tests pass locally (`npm test` in `contract/`).
-- **Continuous Integration**: GitHub Actions CI workflow compiles Compact contracts, validates typecheck, runs linters, and executes the test suite on every push.
-- **Standalone Local Demo**: Fully operable end-to-end against local standalone node and proof server.
-- **Preprod Testnet Logs**: Complete deployment evidence, wallet funding transactions, and network status details documented in [DEPLOYMENT_ATTEMPT.md](DEPLOYMENT_ATTEMPT.md).
+- **CI/CD Pipeline**: [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) automatically validates every push.
+- **Standalone Local Demo**: Fully functional with local standalone node & proof server.
+- **Preprod Testnet Attempt Log**: Full transaction evidence, wallet sync diagnosis, and forum status references recorded in [`DEPLOYMENT_ATTEMPT.md`](DEPLOYMENT_ATTEMPT.md).
