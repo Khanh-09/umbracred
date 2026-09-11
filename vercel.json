@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm ci --legacy-peer-deps --prefix umbracred-app",
+  "buildCommand": "npm run compact --prefix umbracred-app/contract && npm run build --prefix umbracred-app/contract && npm run build --prefix umbracred-app/bboard-ui",
+  "outputDirectory": "umbracred-app/bboard-ui/dist",
+  "framework": "vite"
+}
