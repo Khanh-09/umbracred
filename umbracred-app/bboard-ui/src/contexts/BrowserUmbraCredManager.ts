@@ -72,9 +72,35 @@ export type CredentialDeployment =
   | FailedCredentialDeployment;
 
 /**
+ * State of the Midnight wallet connection.
+ */
+export interface WalletState {
+  readonly status: 'disconnected' | 'connecting' | 'connected' | 'error';
+  readonly address?: string;
+  readonly coinPublicKey?: string;
+  readonly networkId?: string;
+  readonly error?: string;
+}
+
+/**
  * Provides access to UmbraCred deployments.
  */
 export interface DeployedCredentialAPIProvider {
+  /**
+   * Current wallet connection state.
+   */
+  readonly walletState$: Observable<WalletState>;
+
+  /**
+   * Connect to the Midnight Lace wallet.
+   */
+  readonly connectWallet: () => Promise<void>;
+
+  /**
+   * Disconnect from the wallet session.
+   */
+  readonly disconnectWallet: () => void;
+
   /**
    * Gets the observable set of contract deployments.
    */
@@ -101,7 +127,9 @@ export interface DeployedCredentialAPIProvider {
  */
 export class BrowserUmbraCredManager implements DeployedCredentialAPIProvider {
   readonly #credentialDeploymentsSubject: BehaviorSubject<Array<BehaviorSubject<CredentialDeployment>>>;
+  readonly #walletStateSubject: BehaviorSubject<WalletState>;
   #initializedProviders: Promise<UmbraCredProviders> | undefined;
+  #connectedAPI: ConnectedAPI | undefined;
 
   /**
    * Initializes a new {@link BrowserUmbraCredManager} instance.
@@ -111,6 +139,41 @@ export class BrowserUmbraCredManager implements DeployedCredentialAPIProvider {
   constructor(private readonly logger: Logger) {
     this.#credentialDeploymentsSubject = new BehaviorSubject<Array<BehaviorSubject<CredentialDeployment>>>([]);
     this.credentialDeployments$ = this.#credentialDeploymentsSubject;
+    this.#walletStateSubject = new BehaviorSubject<WalletState>({ status: 'disconnected' });
+    this.walletState$ = this.#walletStateSubject;
+  }
+
+  /** @inheritdoc */
+  readonly walletState$: Observable<WalletState>;
+
+  /** @inheritdoc */
+  async connectWallet(): Promise<void> {
+    try {
+      this.#walletStateSubject.next({ status: 'connecting' });
+      const networkId = import.meta.env.VITE_NETWORK_ID as NetworkId;
+      const connectedAPI = await connectToWallet(this.logger, networkId);
+      this.#connectedAPI = connectedAPI;
+      const shieldedAddresses = await connectedAPI.getShieldedAddresses();
+      this.#walletStateSubject.next({
+        status: 'connected',
+        address: shieldedAddresses.shieldedAddress,
+        coinPublicKey: shieldedAddresses.shieldedCoinPublicKey,
+        networkId,
+      });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      this.#walletStateSubject.next({
+        status: 'error',
+        error: errorMsg,
+      });
+    }
+  }
+
+  /** @inheritdoc */
+  disconnectWallet(): void {
+    this.#connectedAPI = undefined;
+    this.#initializedProviders = undefined;
+    this.#walletStateSubject.next({ status: 'disconnected' });
   }
 
   /** @inheritdoc */
@@ -150,7 +213,16 @@ export class BrowserUmbraCredManager implements DeployedCredentialAPIProvider {
   }
 
   private getProviders(): Promise<UmbraCredProviders> {
-    return this.#initializedProviders ?? (this.#initializedProviders = initializeProviders(this.logger));
+    return this.#initializedProviders ?? (this.#initializedProviders = initializeProviders(this.logger, this.#connectedAPI, (api, shielded) => {
+      this.#connectedAPI = api;
+      const networkId = import.meta.env.VITE_NETWORK_ID as NetworkId;
+      this.#walletStateSubject.next({
+        status: 'connected',
+        address: shielded.shieldedAddress,
+        coinPublicKey: shielded.shieldedCoinPublicKey,
+        networkId,
+      });
+    }));
   }
 
   private async deployDeployment(deployment: BehaviorSubject<CredentialDeployment>, score: bigint): Promise<void> {
@@ -195,14 +267,21 @@ export class BrowserUmbraCredManager implements DeployedCredentialAPIProvider {
 }
 
 /** @internal */
-const initializeProviders = async (logger: Logger): Promise<UmbraCredProviders> => {
+const initializeProviders = async (
+  logger: Logger,
+  existingConnectedAPI?: ConnectedAPI,
+  onConnected?: (api: ConnectedAPI, addresses: { shieldedAddress: string; shieldedCoinPublicKey: string; shieldedEncryptionPublicKey: string }) => void,
+): Promise<UmbraCredProviders> => {
   const networkId = import.meta.env.VITE_NETWORK_ID as NetworkId;
-  const connectedAPI = await connectToWallet(logger, networkId);
+  const connectedAPI = existingConnectedAPI ?? (await connectToWallet(logger, networkId));
   const zkConfigPath = window.location.origin;
   const keyMaterialProvider = new FetchZkConfigProvider<UmbraCredCircuitKeys>(zkConfigPath, fetch.bind(window));
   const config = await connectedAPI.getConfiguration();
   const inMemoryUmbraCredPrivateStateProvider = inMemoryPrivateStateProvider<string, UmbraCredPrivateState>();
   const shieldedAddresses = await connectedAPI.getShieldedAddresses();
+  if (onConnected) {
+    onConnected(connectedAPI, shieldedAddresses);
+  }
   return {
     privateStateProvider: inMemoryUmbraCredPrivateStateProvider,
     zkConfigProvider: keyMaterialProvider,

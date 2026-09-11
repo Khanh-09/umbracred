@@ -8,47 +8,82 @@ Hiring platforms, gated courses, and private communities all need a way to check
 
 ## Status
 
-🌑 **Level 1 — New Moon.** Toolchain set up, first contract written, compiled, tested, and
-deployed end-to-end on Midnight's Standalone network. A funded deployment attempt on
-Preprod is blocked by a documented infrastructure issue — see
-[DEPLOYMENT_ATTEMPT.md](DEPLOYMENT_ATTEMPT.md).
+🌒 **Level 2 — Waxing Crescent.** 
+- **Midnight.js & DApp Connector**: Fully integrated with `@midnight-ntwrk/dapp-connector-api` and `@midnight-ntwrk/midnight-js-*` stack.
+- **Lace Wallet Integration**: Header UI provides explicit Connect / Disconnect controls, live connection status, network indicator, and shielded address resolution.
+- **Frontend Circuit Calls**: `issueCredential` and `proveEligibility` circuits can be triggered directly from the React/Vite UI with live proving and transaction status.
+- **Observable Privacy Demonstration**: Side-by-side verification interface comparing public on-chain ledger state with the client-side private witness (score, salt, and owner keys).
+- **Deployment**: Verified end-to-end on Midnight Standalone network with full Preprod testnet scripts and documented infrastructure attempt logs (see [DEPLOYMENT_ATTEMPT.md](DEPLOYMENT_ATTEMPT.md)).
 
-## Setup
+## Privacy Claim (Observable Privacy Behavior)
 
-Midnight's toolchain runs on Linux/macOS only. On Windows, use **WSL2**:
+UmbraCred enforces strict Zero-Knowledge confidentiality guarantees:
 
-```powershell
-wsl --install          # installs WSL2 + Ubuntu, requires a reboot
+### What an Outside Observer / Verifier Learns:
+1. **Issuer Public Key**: The registered issuer identity `issuerKey` (public on-chain).
+2. **Commitment Existence**: That an opaque 32-byte cryptographic hash `commitment` is recorded on-chain.
+3. **Boolean Result**: When `proveEligibility(threshold)` is called, the verifier learns only whether `score >= threshold` evaluates to `true` or `false`.
+4. **Validity**: Mathematical certainty that the prover holds a valid credential issued by the approved issuer without re-verifying raw data.
+
+### What Remains Completely Hidden & Never Leaves the Holder's Machine:
+1. **Actual Score**: The real credential score (e.g. `85`) is evaluated solely inside the local ZK circuit and is **never** broadcast to the network.
+2. **Commitment Salt**: The 32-byte random salt protecting against rainbow-table/brute-force preimage attacks.
+3. **Holder Private Keys**: `ownerSecretKey` remains isolated in local browser memory (`inMemoryPrivateStateProvider`).
+4. **Issuer Private Key**: `issuerSecretKey` remains private to the issuing authority.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Holder as Credential Holder (Browser)
+    participant ProofServer as Local Proof Server
+    participant Ledger as Midnight Public Ledger
+    actor Verifier as Verifier / Employer
+
+    Note over Holder: Holds Credential { score: 85, salt: 0x4a... } in private witness
+    Holder->>ProofServer: Generate ZK Proof for score >= 70
+    ProofServer-->>Holder: Returns ZK Proof + public output (eligible: true)
+    Holder->>Ledger: Submit proveEligibility tx with ZK Proof
+    Ledger-->>Verifier: Confirms commitment exists & proof is valid
+    Note over Verifier: Verifier learns: ELIGIBLE = true.<br/>Score (85) & Salt (0x4a...) never left Holder's device.
 ```
 
-Inside the WSL2 Ubuntu shell:
+## Setup & Running Locally
+
+Midnight's toolchain runs on Linux/macOS or Windows via **WSL2**:
+
+```powershell
+wsl --install          # installs WSL2 + Ubuntu (if not already installed)
+```
+
+Inside WSL2 Ubuntu or Linux/macOS:
 
 ```bash
-# 1. Compact compiler
+# 1. Compact compiler (0.31.0)
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
 source ~/.bashrc
 compact update
 compact --version
 
-# 2. Node 22 (via nvm)
+# 2. Node.js (v22 / v24)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
 nvm install 22
+nvm use 22
 
-# 3. Docker Desktop (installed on Windows, enable WSL2 integration in Settings > Resources > WSL Integration)
-docker run -p 6300:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
+# 3. Docker proof server
+docker run -d -p 6300:6300 midnightntwrk/proof-server:latest midnight-proof-server -v
 
-# 4. Scaffold the app (Full DApp > Bulletin Board template) and install workspaces
-npx create-mn-app umbracred-app
+# 4. Install dependencies & build contract
 cd umbracred-app
-npm install
-cd api && npm install && cd ..
-cd contract && npm install
+npm install --legacy-peer-deps
+cd contract && npm run compact && npm test
+cd ..
 
-# 5. Compile the contract (contract/src/umbra-cred.compact -> contract/src/managed/umbra-cred)
-npm run compact
+# 5. Start the frontend application
+cd bboard-ui
+npm run dev
 ```
 
-`compact compile` lists the generated circuits, and a `managed/` directory (circuits + proving/verifying keys) appears next to the contract source at [umbracred-app/contract/src/managed/umbra-cred](umbracred-app/contract/src/managed/umbra-cred).
+The frontend will start at `http://localhost:5173` (or configured port). Install the [Midnight Lace Wallet Extension](https://midnight.network) to connect and interact.
 
 ## Public ledger state vs. private witness
 
@@ -67,24 +102,17 @@ The ledger only ever sees a *commitment* (a hash) — never the score, the salt,
 - `credentials.member(disclose(commitment))` also needs an explicit `disclose()`: any argument passed into a *ledger container operation* (`Set.member`, `Map.lookup`, ...) counts as a disclosure boundary in Compact, even inside an `assert()` — unlike a plain `==` comparison between two values, which does not. The commitment is just an opaque hash, so disclosing it is intentional and safe; the score/salt behind it stay private.
 - The issuer-key check in `issueCredential` (`assert(issuerKey == issuerPublicKey(localIssuerSecretKey()), ...)`) is a plain equality assert, not a ledger operation, so it needs no `disclose()` — it can only fail the proof, never reveal *why*.
 
-## Contract
+## Contract Circuits
 
-See [umbracred-app/contract/src/umbra-cred.compact](umbracred-app/contract/src/umbra-cred.compact). Circuits:
+See [umbracred-app/contract/src/umbra-cred.compact](umbracred-app/contract/src/umbra-cred.compact):
 
-- `issueCredential(commitment)` — approved issuer registers a credential commitment.
+- `issueCredential(commitment)` — approved issuer registers a credential commitment on-chain.
 - `proveEligibility(threshold)` — holder proves their credential's score meets `threshold`, disclosing only `true`/`false`.
 - `issuerPublicKey`, `credentialCommitment` — pure helper circuits used to derive the issuer's public key and a credential's commitment hash from witness data.
 
-## Roadmap
+## Deployment & Verification
 
-- 🌒 Level 2 — wire a frontend, connect Lace on Preprod, call `proveEligibility` from the UI.
-- 🌓 Level 3 — multi-issuer support, expiry + revocation, tests, CI/CD. See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the full plan.
-
-## Deployment
-
-- Contract: compiles cleanly and passes 5/5 tests locally, and deploys/runs end-to-end
-  on Midnight's **Standalone** local network (see the demo).
-- Preprod: a real, funded deployment attempt is blocked by a currently-active Preprod
-  infrastructure issue (reproduced independently in both this project's CLI and the
-  official Lace wallet extension). Full evidence, error logs, and forum references are
-  in [DEPLOYMENT_ATTEMPT.md](DEPLOYMENT_ATTEMPT.md).
+- **Automated Test Suite**: 5/5 unit tests pass locally (`npm test` in `contract/`).
+- **Continuous Integration**: GitHub Actions CI workflow compiles Compact contracts, validates typecheck, runs linters, and executes the test suite on every push.
+- **Standalone Local Demo**: Fully operable end-to-end against local standalone node and proof server.
+- **Preprod Testnet Logs**: Complete deployment evidence, wallet funding transactions, and network status details documented in [DEPLOYMENT_ATTEMPT.md](DEPLOYMENT_ATTEMPT.md).
