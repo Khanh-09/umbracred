@@ -1,8 +1,12 @@
 # UmbraCred
 
 [![CI](https://github.com/Khanh-09/umbracred/actions/workflows/ci.yaml/badge.svg)](https://github.com/Khanh-09/umbracred/actions/workflows/ci.yaml)
+[![Live DApp](https://img.shields.io/badge/Live_DApp-Vercel-success?style=flat&logo=vercel)](https://umbracred-ashy.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Midnight](https://img.shields.io/badge/Midnight-Compact_0.31.0-blueviolet)](https://midnight.network)
+
+> 🚀 **Live Demo DApp**: [https://umbracred-ashy.vercel.app](https://umbracred-ashy.vercel.app)  
+> 🔗 **GitHub Repository**: [https://github.com/Khanh-09/umbracred](https://github.com/Khanh-09/umbracred)
 
 **Confidential Credential Verification on [Midnight](https://midnight.network)**. An approved issuer registers a cryptographic commitment to a credential on Midnight's public ledger without revealing its contents; the holder later proves the credential meets a public threshold (e.g. "score ≥ 70") using Zero-Knowledge proofs without ever revealing the real score, salt, credential metadata, or their identity.
 
