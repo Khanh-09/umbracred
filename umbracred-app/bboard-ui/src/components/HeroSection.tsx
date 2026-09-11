@@ -107,111 +107,103 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
         </Box>
 
         {/* Live Metrics Grid */}
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                background: 'rgba(17, 13, 40, 0.6)',
-                border: '1px solid rgba(124, 92, 255, 0.2)',
-                borderRadius: 3,
-                textAlign: 'left',
-              }}
-            >
-              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
-                <BoltIcon sx={{ color: '#00f0ff', fontSize: 22 }} />
-                <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
-                  PROVING SPEED
-                </Typography>
-              </Stack>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
-                ~1.2s Local ZK
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 2 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              background: 'rgba(17, 13, 40, 0.6)',
+              border: '1px solid rgba(124, 92, 255, 0.2)',
+              borderRadius: 3,
+              textAlign: 'left',
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+              <BoltIcon sx={{ color: '#00f0ff', fontSize: 22 }} />
+              <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
+                PROVING SPEED
               </Typography>
-              <Typography variant="caption" sx={{ color: '#00f0ff' }}>
-                Client-side Docker proof server
-              </Typography>
-            </Paper>
-          </Grid>
+            </Stack>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
+              ~1.2s Local ZK
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#00f0ff' }}>
+              Client-side Docker proof server
+            </Typography>
+          </Paper>
 
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                background: 'rgba(17, 13, 40, 0.6)',
-                border: '1px solid rgba(124, 92, 255, 0.2)',
-                borderRadius: 3,
-                textAlign: 'left',
-              }}
-            >
-              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
-                <ShieldIcon sx={{ color: '#7c5cff', fontSize: 22 }} />
-                <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
-                  PRIVACY BOUNDARY
-                </Typography>
-              </Stack>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
-                100% Zero-Knowledge
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              background: 'rgba(17, 13, 40, 0.6)',
+              border: '1px solid rgba(124, 92, 255, 0.2)',
+              borderRadius: 3,
+              textAlign: 'left',
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+              <ShieldIcon sx={{ color: '#7c5cff', fontSize: 22 }} />
+              <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
+                PRIVACY BOUNDARY
               </Typography>
-              <Typography variant="caption" sx={{ color: '#a48eff' }}>
-                Score never broadcast on-chain
-              </Typography>
-            </Paper>
-          </Grid>
+            </Stack>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
+              100% Zero-Knowledge
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#a48eff' }}>
+              Score never broadcast on-chain
+            </Typography>
+          </Paper>
 
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                background: 'rgba(17, 13, 40, 0.6)',
-                border: '1px solid rgba(124, 92, 255, 0.2)',
-                borderRadius: 3,
-                textAlign: 'left',
-              }}
-            >
-              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
-                <VerifiedIcon sx={{ color: '#00e676', fontSize: 22 }} />
-                <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
-                  COMPACT CIRCUITS
-                </Typography>
-              </Stack>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
-                2 Active ZKIRs
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              background: 'rgba(17, 13, 40, 0.6)',
+              border: '1px solid rgba(124, 92, 255, 0.2)',
+              borderRadius: 3,
+              textAlign: 'left',
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+              <VerifiedIcon sx={{ color: '#00e676', fontSize: 22 }} />
+              <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
+                COMPACT CIRCUITS
               </Typography>
-              <Typography variant="caption" sx={{ color: '#00e676' }}>
-                issueCredential + proveEligibility
-              </Typography>
-            </Paper>
-          </Grid>
+            </Stack>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
+              2 Active ZKIRs
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#00e676' }}>
+              issueCredential + proveEligibility
+            </Typography>
+          </Paper>
 
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                background: 'rgba(17, 13, 40, 0.6)',
-                border: '1px solid rgba(124, 92, 255, 0.2)',
-                borderRadius: 3,
-                textAlign: 'left',
-              }}
-            >
-              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
-                <LockIcon sx={{ color: '#ffaa00', fontSize: 22 }} />
-                <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
-                  NETWORK TARGET
-                </Typography>
-              </Stack>
-              <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
-                Preprod & Standalone
+          <Paper
+            elevation={0}
+            sx={{
+              p: 2.5,
+              background: 'rgba(17, 13, 40, 0.6)',
+              border: '1px solid rgba(124, 92, 255, 0.2)',
+              borderRadius: 3,
+              textAlign: 'left',
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 1 }}>
+              <LockIcon sx={{ color: '#ffaa00', fontSize: 22 }} />
+              <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', fontWeight: 600 }}>
+                NETWORK TARGET
               </Typography>
-              <Typography variant="caption" sx={{ color: '#ffaa00' }}>
-                Lace Wallet DApp Connector
-              </Typography>
-            </Paper>
-          </Grid>
-        </Grid>
+            </Stack>
+            <Typography variant="h5" sx={{ fontWeight: 700, color: '#ffffff' }}>
+              Preprod & Standalone
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#ffaa00' }}>
+              Lace Wallet DApp Connector
+            </Typography>
+          </Paper>
+        </Box>
       </Container>
     </Box>
   );

@@ -319,39 +319,34 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
                 ))}
               </Stack>
 
-              <Grid container spacing={2} alignItems="center">
-                <Grid size={{ xs: 12, sm: 7 }}>
-                  <TextField
-                    id="threshold-prompt"
-                    data-testid="credential-threshold-prompt"
-                    variant="outlined"
-                    label="Minimum Required Score Bar (Threshold)"
-                    fullWidth
-                    size="medium"
-                    type="number"
-                    value={thresholdInput}
-                    onChange={(e) => {
-                      setThresholdInput(e.target.value);
-                      setEligibleResult(undefined);
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 5 }}>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    fullWidth
-                    size="large"
-                    startIcon={<BoltIcon />}
-                    onClick={onProveEligibility}
-                    disabled={!thresholdInput.length || isWorking}
-                    data-testid="credential-prove-btn"
-                    sx={{ py: 1.4, fontWeight: 700 }}
-                  >
-                    Prove Eligibility (ZK)
-                  </Button>
-                </Grid>
-              </Grid>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr auto' }, gap: 2, alignItems: 'center' }}>
+                <TextField
+                  id="threshold-prompt"
+                  data-testid="credential-threshold-prompt"
+                  variant="outlined"
+                  label="Minimum Required Score Bar (Threshold)"
+                  fullWidth
+                  size="medium"
+                  type="number"
+                  value={thresholdInput}
+                  onChange={(e) => {
+                    setThresholdInput(e.target.value);
+                    setEligibleResult(undefined);
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  size="large"
+                  startIcon={<BoltIcon />}
+                  onClick={onProveEligibility}
+                  disabled={!thresholdInput.length || isWorking}
+                  data-testid="credential-prove-btn"
+                  sx={{ py: 1.4, px: 3, fontWeight: 700, whiteSpace: 'nowrap' }}
+                >
+                  Prove Eligibility (ZK)
+                </Button>
+              </Box>
 
               {/* Proof Result Display */}
               {eligibleResult !== undefined && (
@@ -391,66 +386,63 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
             </Paper>
 
             {/* Observable Privacy Split Card */}
-            <Grid container spacing={2}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
               {/* Public Ledger Column */}
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2.5,
-                    background: 'rgba(0, 240, 255, 0.03)',
-                    border: '1px solid rgba(0, 240, 255, 0.2)',
-                    borderRadius: 3,
-                    height: '100%',
-                  }}
-                >
-                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
-                    <VisibilityIcon sx={{ color: '#00f0ff', fontSize: 20 }} />
-                    <Typography variant="subtitle2" sx={{ color: '#00f0ff', fontWeight: 700 }}>
-                      What Any Observer Sees
-                    </Typography>
-                  </Stack>
-                  <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', display: 'block', mb: 2 }}>
-                    Public on-chain ledger state
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2.5,
+                  background: 'rgba(0, 240, 255, 0.03)',
+                  border: '1px solid rgba(0, 240, 255, 0.2)',
+                  borderRadius: 3,
+                  height: '100%',
+                }}
+              >
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+                  <VisibilityIcon sx={{ color: '#00f0ff', fontSize: 20 }} />
+                  <Typography variant="subtitle2" sx={{ color: '#00f0ff', fontWeight: 700 }}>
+                    What Any Observer Sees
                   </Typography>
+                </Stack>
+                <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', display: 'block', mb: 2 }}>
+                  Public on-chain ledger state
+                </Typography>
 
-                  {derivedState ? (
-                    <Stack spacing={1.5}>
-                      <Box>
-                        <Typography variant="caption" sx={{ color: '#b0a6e0' }}>
-                          Approved Issuer Public Key:
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontFamily: '"JetBrains Mono", monospace', color: '#ffffff' }} data-testid="credential-issuer-key">
-                          0x{toHex(derivedState.issuerKey).slice(0, 14)}...
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography variant="caption" sx={{ color: '#b0a6e0' }}>
-                          Commitments Registered:
-                        </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#00f0ff' }} data-testid="credential-count">
-                          {derivedState.credentialCount.toString()} commitment(s)
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  ) : (
-                    <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2 }} />
-                  )}
-                </Paper>
-              </Grid>
+                {derivedState ? (
+                  <Stack spacing={1.5}>
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#b0a6e0' }}>
+                        Approved Issuer Public Key:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontFamily: '"JetBrains Mono", monospace', color: '#ffffff' }} data-testid="credential-issuer-key">
+                        0x{toHex(derivedState.issuerKey).slice(0, 14)}...
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#b0a6e0' }}>
+                        Commitments Registered:
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#00f0ff' }} data-testid="credential-count">
+                        {derivedState.credentialCount.toString()} commitment(s)
+                      </Typography>
+                    </Box>
+                  </Stack>
+                ) : (
+                  <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2 }} />
+                )}
+              </Paper>
 
               {/* Private Witness Column */}
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2.5,
-                    background: 'rgba(124, 92, 255, 0.05)',
-                    border: '1px solid rgba(124, 92, 255, 0.25)',
-                    borderRadius: 3,
-                    height: '100%',
-                  }}
-                >
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2.5,
+                  background: 'rgba(124, 92, 255, 0.05)',
+                  border: '1px solid rgba(124, 92, 255, 0.25)',
+                  borderRadius: 3,
+                  height: '100%',
+                }}
+              >
                   <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
                     <Stack direction="row" spacing={1} alignItems="center">
                       <VisibilityOffIcon sx={{ color: '#a48eff', fontSize: 20 }} />

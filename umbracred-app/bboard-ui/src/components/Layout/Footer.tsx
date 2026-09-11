@@ -1,7 +1,6 @@
 import React from 'react';
-import { Box, Container, Divider, Grid, Link, Stack, Typography } from '@mui/material';
+import { Box, Container, Divider, Link, Stack, Typography } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import TerminalIcon from '@mui/icons-material/Terminal';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 export const Footer: React.FC = () => {
@@ -17,8 +16,15 @@ export const Footer: React.FC = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={4} sx={{ mb: 4 }}>
-          <Grid size={{ xs: 12, md: 5 }}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '2fr 1fr 1fr 1fr' },
+            gap: 4,
+            mb: 4,
+          }}
+        >
+          <Box>
             <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
               <img src="/midnight-logo.png" alt="Midnight Logo" height={36} />
               <Typography variant="h6" sx={{ fontWeight: 700, color: '#ffffff' }}>
@@ -28,9 +34,9 @@ export const Footer: React.FC = () => {
             <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.7)', maxWidth: 360, lineHeight: 1.6 }}>
               Confidential Zero-Knowledge credential verification built on Midnight Network with Compact Smart Contracts.
             </Typography>
-          </Grid>
+          </Box>
 
-          <Grid size={{ xs: 6, md: 2.5 }}>
+          <Box>
             <Typography variant="overline" sx={{ color: '#00f0ff', mb: 2, display: 'block' }}>
               PROTOCOL
             </Typography>
@@ -45,9 +51,9 @@ export const Footer: React.FC = () => {
                 Preprod Explorer
               </Link>
             </Stack>
-          </Grid>
+          </Box>
 
-          <Grid size={{ xs: 6, md: 2.5 }}>
+          <Box>
             <Typography variant="overline" sx={{ color: '#00f0ff', mb: 2, display: 'block' }}>
               RESOURCES
             </Typography>
@@ -62,9 +68,9 @@ export const Footer: React.FC = () => {
                 GitHub Repository
               </Link>
             </Stack>
-          </Grid>
+          </Box>
 
-          <Grid size={{ xs: 12, md: 2 }}>
+          <Box>
             <Typography variant="overline" sx={{ color: '#00f0ff', mb: 2, display: 'block' }}>
               COMMUNITY
             </Typography>
@@ -82,8 +88,8 @@ export const Footer: React.FC = () => {
                 </Link>
               </Stack>
             </Stack>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         <Divider sx={{ borderColor: 'rgba(124, 92, 255, 0.15)', mb: 3 }} />
 

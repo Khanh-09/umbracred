@@ -83,109 +83,105 @@ export const PrivacyInspector: React.FC = () => {
 
         <Box sx={{ p: 4 }}>
           {activeTab === 0 && (
-            <Grid container spacing={3}>
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Card
-                  sx={{
-                    background: 'rgba(0, 240, 255, 0.04)',
-                    border: '1px solid rgba(0, 240, 255, 0.3)',
-                    height: '100%',
-                  }}
-                >
-                  <CardContent sx={{ p: 3 }}>
-                    <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
-                      <VisibilityIcon sx={{ color: '#00f0ff', fontSize: 24 }} />
-                      <Typography variant="h6" sx={{ color: '#00f0ff', fontWeight: 700 }}>
-                        Public On-Chain Ledger State
-                      </Typography>
-                    </Stack>
-                    <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.8)', mb: 3 }}>
-                      Stored permanently on Midnight’s public ledger. Visible to any validator or verifier.
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+              <Card
+                sx={{
+                  background: 'rgba(0, 240, 255, 0.04)',
+                  border: '1px solid rgba(0, 240, 255, 0.3)',
+                  height: '100%',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
+                    <VisibilityIcon sx={{ color: '#00f0ff', fontSize: 24 }} />
+                    <Typography variant="h6" sx={{ color: '#00f0ff', fontWeight: 700 }}>
+                      Public On-Chain Ledger State
                     </Typography>
+                  </Stack>
+                  <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.8)', mb: 3 }}>
+                    Stored permanently on Midnight’s public ledger. Visible to any validator or verifier.
+                  </Typography>
 
-                    <Stack spacing={2}>
-                      <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(0, 240, 255, 0.15)' }}>
-                        <Typography variant="caption" sx={{ color: '#00f0ff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
-                          export ledger issuerKey: Bytes&lt;32&gt;;
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
-                          Public cryptographic key of the accredited issuing organization.
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(0, 240, 255, 0.15)' }}>
-                        <Typography variant="caption" sx={{ color: '#00f0ff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
-                          export ledger credentials: Set&lt;Bytes&lt;32&gt;&gt;;
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
-                          Set of opaque 32-byte commitment hashes. No score, salt, or holder names are visible.
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(0, 240, 255, 0.15)' }}>
-                        <Typography variant="caption" sx={{ color: '#00f0ff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
-                          disclose(cred.score &gt;= threshold) -&gt; Boolean
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
-                          The sole public output of a verification transaction: true or false.
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              <Grid size={{ xs: 12, md: 6 }}>
-                <Card
-                  sx={{
-                    background: 'rgba(124, 92, 255, 0.05)',
-                    border: '1px solid rgba(124, 92, 255, 0.35)',
-                    height: '100%',
-                  }}
-                >
-                  <CardContent sx={{ p: 3 }}>
-                    <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
-                      <VisibilityOffIcon sx={{ color: '#a48eff', fontSize: 24 }} />
-                      <Typography variant="h6" sx={{ color: '#a48eff', fontWeight: 700 }}>
-                        Private Off-Chain Witnesses (100% Confidential)
+                  <Stack spacing={2}>
+                    <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(0, 240, 255, 0.15)' }}>
+                      <Typography variant="caption" sx={{ color: '#00f0ff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
+                        export ledger issuerKey: Bytes&lt;32&gt;;
                       </Typography>
-                    </Stack>
-                    <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.8)', mb: 3 }}>
-                      Resides exclusively in local browser/wallet memory. Never broadcast to the network.
+                      <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
+                        Public cryptographic key of the accredited issuing organization.
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(0, 240, 255, 0.15)' }}>
+                      <Typography variant="caption" sx={{ color: '#00f0ff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
+                        export ledger credentials: Set&lt;Bytes&lt;32&gt;&gt;;
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
+                        Set of opaque 32-byte commitment hashes. No score, salt, or holder names are visible.
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(0, 240, 255, 0.15)' }}>
+                      <Typography variant="caption" sx={{ color: '#00f0ff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
+                        disclose(cred.score &gt;= threshold) -&gt; Boolean
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
+                        The sole public output of a verification transaction: true or false.
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </CardContent>
+              </Card>
+
+              <Card
+                sx={{
+                  background: 'rgba(124, 92, 255, 0.05)',
+                  border: '1px solid rgba(124, 92, 255, 0.35)',
+                  height: '100%',
+                }}
+              >
+                <CardContent sx={{ p: 3 }}>
+                  <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
+                    <VisibilityOffIcon sx={{ color: '#a48eff', fontSize: 24 }} />
+                    <Typography variant="h6" sx={{ color: '#a48eff', fontWeight: 700 }}>
+                      Private Off-Chain Witnesses (100% Confidential)
                     </Typography>
+                  </Stack>
+                  <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.8)', mb: 3 }}>
+                    Resides exclusively in local browser/wallet memory. Never broadcast to the network.
+                  </Typography>
 
-                    <Stack spacing={2}>
-                      <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(124, 92, 255, 0.2)' }}>
-                        <Typography variant="caption" sx={{ color: '#a48eff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
-                          witness localCredential(): Credential &#123; score, salt &#125;;
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
-                          The real raw score (e.g. 85/100) and random 32-byte salt protecting preimage security.
-                        </Typography>
-                      </Box>
+                  <Stack spacing={2}>
+                    <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(124, 92, 255, 0.2)' }}>
+                      <Typography variant="caption" sx={{ color: '#a48eff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
+                        witness localCredential(): Credential &#123; score, salt &#125;;
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
+                        The real raw score (e.g. 85/100) and random 32-byte salt protecting preimage security.
+                      </Typography>
+                    </Box>
 
-                      <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(124, 92, 255, 0.2)' }}>
-                        <Typography variant="caption" sx={{ color: '#a48eff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
-                          witness localOwnerSecretKey(): Bytes&lt;32&gt;;
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
-                          The holder's secret key proving exclusive ownership over the commitment.
-                        </Typography>
-                      </Box>
+                    <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(124, 92, 255, 0.2)' }}>
+                      <Typography variant="caption" sx={{ color: '#a48eff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
+                        witness localOwnerSecretKey(): Bytes&lt;32&gt;;
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
+                        The holder's secret key proving exclusive ownership over the commitment.
+                      </Typography>
+                    </Box>
 
-                      <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(124, 92, 255, 0.2)' }}>
-                        <Typography variant="caption" sx={{ color: '#a48eff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
-                          witness localIssuerSecretKey(): Bytes&lt;32&gt;;
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
-                          The issuer's signing secret key; only authorized issuers can mint new commitments.
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
+                    <Box sx={{ p: 2, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2, border: '1px solid rgba(124, 92, 255, 0.2)' }}>
+                      <Typography variant="caption" sx={{ color: '#a48eff', fontFamily: '"JetBrains Mono", monospace', fontWeight: 700 }}>
+                        witness localIssuerSecretKey(): Bytes&lt;32&gt;;
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#b0a6e0', mt: 0.5 }}>
+                        The issuer's signing secret key; only authorized issuers can mint new commitments.
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Box>
           )}
 
           {activeTab === 1 && (
