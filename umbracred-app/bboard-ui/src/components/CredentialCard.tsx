@@ -10,9 +10,7 @@ import {
   Chip,
   CircularProgress,
   Collapse,
-  Divider,
   IconButton,
-  LinearProgress,
   Paper,
   Skeleton,
   TextField,
@@ -26,8 +24,6 @@ import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOffOutlined';
 import SecurityIcon from '@mui/icons-material/Security';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
-import VerifiedIcon from '@mui/icons-material/Verified';
-import KeyIcon from '@mui/icons-material/VpnKeyOutlined';
 import BoltIcon from '@mui/icons-material/Bolt';
 import { type UmbraCredDerivedState, type DeployedUmbraCredAPI } from '../../../api/src/index';
 import { type UmbraCredPrivateState } from '../../../contract/src/index';

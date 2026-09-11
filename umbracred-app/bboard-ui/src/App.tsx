@@ -5,7 +5,6 @@ import {
   Stack,
   Tab,
   Tabs,
-  Typography,
 } from '@mui/material';
 import { MainLayout, CredentialCard, HeroSection, PrivacyInspector } from './components';
 import { useDeployedCredentialContext } from './hooks';

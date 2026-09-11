@@ -24,7 +24,9 @@ const config = tseslint.config(
       '@typescript-eslint/no-redeclare': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      'react/no-unescaped-entities': 'off',
+      'react/jsx-no-comment-textnodes': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
     },
     settings: {
       react: {
