@@ -489,8 +489,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
                     </Typography>
                   )}
                 </Paper>
-              </Grid>
-            </Grid>
+            </Box>
           </CardContent>
         </React.Fragment>
       )}
