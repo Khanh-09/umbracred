@@ -16,38 +16,35 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { Header } from './Header';
+import { Footer } from './Footer';
 
 /**
- * Provides layout for the UmbraCred application.
+ * Provides master layout for the UmbraCred DApp.
  */
 export const MainLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
-    <Box sx={{ minHeight: '100vh', overflow: 'hidden' }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#070514',
+        backgroundImage: `
+          radial-gradient(circle at 15% 15%, rgba(124, 92, 255, 0.12) 0%, transparent 40%),
+          radial-gradient(circle at 85% 65%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+          linear-gradient(rgba(124, 92, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(124, 92, 255, 0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '100% 100%, 100% 100%, 40px 40px, 40px 40px',
+        color: '#f4f1ff',
+      }}
+    >
       <Header />
-      <Box sx={{ px: 10, position: 'relative', height: '100%' }}>
-        <img
-          src="/logo-render.png"
-          alt="logo-image"
-          height={607}
-          style={{ position: 'absolute', zIndex: 1, left: '2vw', top: '5vh' }}
-        />
-        <Box
-          sx={{
-            zIndex: 999,
-            position: 'relative',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '5px',
-            rowGap: '5px',
-            alignItems: 'center',
-            height: '100%',
-            py: '10vh',
-            px: '15vw',
-          }}
-        >
-          {children}
-        </Box>
+      <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        {children}
       </Box>
+      <Footer />
     </Box>
   );
 };
+

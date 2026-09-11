@@ -1,25 +1,38 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { type ContractAddress, toHex } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import {
+  Alert,
   Backdrop,
   Box,
   Button,
+  Card,
   CardActions,
   CardContent,
   CardHeader,
+  Chip,
   CircularProgress,
   Collapse,
   Divider,
+  Grid,
   IconButton,
+  LinearProgress,
+  Paper,
   Skeleton,
+  Stack,
   TextField,
+  Tooltip,
   Typography,
-  Card,
 } from '@mui/material';
-import CopyIcon from '@mui/icons-material/ContentPasteOutlined';
-import StopIcon from '@mui/icons-material/HighlightOffOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOffOutlined';
+import SecurityIcon from '@mui/icons-material/Security';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import KeyIcon from '@mui/icons-material/VpnKeyOutlined';
+import BoltIcon from '@mui/icons-material/Bolt';
 import { type UmbraCredDerivedState, type DeployedUmbraCredAPI } from '../../../api/src/index';
 import { type UmbraCredPrivateState } from '@midnight-ntwrk/bboard-contract';
 import { useDeployedCredentialContext } from '../hooks';
@@ -27,51 +40,51 @@ import { type CredentialDeployment } from '../contexts';
 import { type Observable } from 'rxjs';
 import { EmptyCardContent } from './CredentialCard.EmptyCardContent';
 
-/** The props required by the {@link CredentialCard} component. */
 export interface CredentialCardProps {
-  /** The observable UmbraCred deployment. */
   credentialDeployment$?: Observable<CredentialDeployment>;
 }
 
-/**
- * Provides the UI for a deployed UmbraCred contract: issuing a credential, proving eligibility
- * against a threshold, and — to make the privacy model concrete — showing side by side what an
- * outside verifier can see versus what only this browser session's private state holds.
- *
- * @remarks
- * With no `credentialDeployment$` observable, the component renders a UI to deploy a new contract
- * (with a chosen score) or join an existing one.
- */
 export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ credentialDeployment$ }) => {
   const credentialApiProvider = useDeployedCredentialContext();
   const [credentialDeployment, setCredentialDeployment] = useState<CredentialDeployment>();
   const [deployedAPI, setDeployedAPI] = useState<DeployedUmbraCredAPI>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [successMessage, setSuccessMessage] = useState<string>();
   const [derivedState, setDerivedState] = useState<UmbraCredDerivedState>();
   const [isWorking, setIsWorking] = useState(!!credentialDeployment$);
+  const [workingLabel, setWorkingLabel] = useState<string>('Processing...');
+  const [copied, setCopied] = useState(false);
 
-  const [thresholdInput, setThresholdInput] = useState('');
+  const [thresholdInput, setThresholdInput] = useState('70');
   const [eligibleResult, setEligibleResult] = useState<boolean>();
 
   const [showPrivateState, setShowPrivateState] = useState(false);
   const [privateState, setPrivateState] = useState<UmbraCredPrivateState | null>();
 
   const onCreateCredential = useCallback(
-    (score: string) => credentialApiProvider.deploy(BigInt(score || '0')),
+    (score: string) => {
+      setWorkingLabel('Deploying UmbraCred contract & registering issuer...');
+      return credentialApiProvider.deploy(BigInt(score || '0'));
+    },
     [credentialApiProvider],
   );
+
   const onJoinCredential = useCallback(
-    (contractAddress: ContractAddress) => credentialApiProvider.join(contractAddress),
+    (contractAddress: ContractAddress) => {
+      setWorkingLabel('Joining deployed Midnight contract...');
+      return credentialApiProvider.join(contractAddress);
+    },
     [credentialApiProvider],
   );
 
   const onIssueCredential = useCallback(async () => {
-    if (!deployedAPI) {
-      return;
-    }
+    if (!deployedAPI) return;
     try {
+      setWorkingLabel('Registering credential commitment on-chain...');
       setIsWorking(true);
+      setErrorMessage(undefined);
       await deployedAPI.issueMyCredential();
+      setSuccessMessage('Credential commitment successfully registered on Midnight ledger!');
     } catch (error: unknown) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
     } finally {
@@ -80,11 +93,11 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
   }, [deployedAPI]);
 
   const onProveEligibility = useCallback(async () => {
-    if (!deployedAPI || !thresholdInput) {
-      return;
-    }
+    if (!deployedAPI || !thresholdInput) return;
     try {
+      setWorkingLabel(`Generating ZK proof for score >= ${thresholdInput}...`);
       setIsWorking(true);
+      setErrorMessage(undefined);
       setEligibleResult(undefined);
       const result = await deployedAPI.proveEligibility(BigInt(thresholdInput));
       setEligibleResult(result);
@@ -98,6 +111,8 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
   const onCopyContractAddress = useCallback(async () => {
     if (deployedAPI) {
       await navigator.clipboard.writeText(deployedAPI.deployedContractAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   }, [deployedAPI]);
 
@@ -109,9 +124,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
   }, [deployedAPI, showPrivateState]);
 
   useEffect(() => {
-    if (!credentialDeployment$) {
-      return;
-    }
+    if (!credentialDeployment$) return;
     const subscription = credentialDeployment$.subscribe(setCredentialDeployment);
     return () => {
       subscription.unsubscribe();
@@ -119,12 +132,8 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
   }, [credentialDeployment$]);
 
   useEffect(() => {
-    if (!credentialDeployment) {
-      return;
-    }
-    if (credentialDeployment.status === 'in-progress') {
-      return;
-    }
+    if (!credentialDeployment) return;
+    if (credentialDeployment.status === 'in-progress') return;
 
     setIsWorking(false);
 
@@ -132,7 +141,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
       setErrorMessage(
         credentialDeployment.error.message.length
           ? credentialDeployment.error.message
-          : 'Encountered an unexpected error.',
+          : 'Encountered an unexpected error while interacting with Midnight.',
       );
       return;
     }
@@ -145,150 +154,354 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
   }, [credentialDeployment]);
 
   return (
-    <Card sx={{ position: 'relative', width: 340, minHeight: 300 }} color="primary">
+    <Card
+      sx={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: 780,
+        mx: 'auto',
+        overflow: 'hidden',
+      }}
+    >
       {!credentialDeployment$ && (
         <EmptyCardContent onCreateCallback={onCreateCredential} onJoinCallback={onJoinCredential} />
       )}
 
       {credentialDeployment$ && (
         <React.Fragment>
+          {/* Progress / Spinner Overlay */}
           <Backdrop
-            sx={{ position: 'absolute', color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            sx={{
+              position: 'absolute',
+              color: '#ffffff',
+              zIndex: (theme) => theme.zIndex.drawer + 2,
+              backgroundColor: 'rgba(7, 5, 20, 0.85)',
+              backdropFilter: 'blur(8px)',
+              flexDirection: 'column',
+              gap: 2,
+              p: 3,
+              textAlign: 'center',
+            }}
             open={isWorking}
           >
-            <CircularProgress data-testid="credential-working-indicator" />
+            <CircularProgress size={52} sx={{ color: '#00f0ff' }} />
+            <Typography variant="h6" sx={{ fontWeight: 700, color: '#ffffff' }}>
+              {workingLabel}
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.7)', maxWidth: 400 }}>
+              Midnight Proof Server is synthesizing ZKIR constraints and evaluating private witnesses...
+            </Typography>
           </Backdrop>
-          <Backdrop
-            sx={{ position: 'absolute', color: '#ff0000', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-            open={!!errorMessage}
-            onClick={() => setErrorMessage(undefined)}
+
+          {/* Header Bar */}
+          <Box
+            sx={{
+              p: 3,
+              pb: 2,
+              borderBottom: '1px solid rgba(124, 92, 255, 0.2)',
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 2,
+            }}
           >
-            <StopIcon fontSize="large" />
-            <Typography component="div" data-testid="credential-error-message">
-              {errorMessage}
-            </Typography>
-          </Backdrop>
-          <CardHeader
-            titleTypographyProps={{ color: 'primary', variant: 'body2' }}
-            title={toShortFormatContractAddress(deployedAPI?.deployedContractAddress) ?? 'Loading...'}
-            action={
-              deployedAPI?.deployedContractAddress ? (
-                <IconButton title="Copy contract address" onClick={onCopyContractAddress}>
-                  <CopyIcon fontSize="small" />
-                </IconButton>
-              ) : (
-                <Skeleton variant="circular" width={20} height={20} />
-              )
-            }
-          />
-          <CardContent>
-            <Typography variant="overline" color="primary" data-testid="credential-observer-label">
-              What a verifier can see
-            </Typography>
-            {derivedState ? (
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="body2" color="primary" data-testid="credential-issuer-key">
-                  Approved issuer: 0x{toHex(derivedState.issuerKey).slice(0, 12)}...
+            <Box>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                <Chip
+                  label="ACTIVE CONTRACT"
+                  size="small"
+                  sx={{
+                    background: 'rgba(0, 230, 118, 0.15)',
+                    border: '1px solid rgba(0, 230, 118, 0.4)',
+                    color: '#00e676',
+                    fontFamily: '"JetBrains Mono", monospace',
+                    fontWeight: 700,
+                    fontSize: '0.72rem',
+                  }}
+                />
+                <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)' }}>
+                  Midnight Compact v0.31
                 </Typography>
-                <Typography variant="body2" color="primary" data-testid="credential-count">
-                  Credential commitments registered: {derivedState.credentialCount.toString()}
-                </Typography>
-              </Box>
-            ) : (
-              <Skeleton variant="rectangular" width={280} height={40} sx={{ mb: 2 }} />
-            )}
-
-            <Divider sx={{ my: 1 }} />
-
-            <TextField
-              id="threshold-prompt"
-              data-testid="credential-threshold-prompt"
-              variant="outlined"
-              label="Prove score >= threshold"
-              focused
-              fullWidth
-              size="small"
-              color="primary"
-              type="number"
-              slotProps={{ htmlInput: { style: { color: 'black' } } }}
-              onChange={(e) => {
-                setThresholdInput(e.target.value);
-                setEligibleResult(undefined);
-              }}
-              sx={{ mt: 1, mb: 1 }}
-            />
-            {eligibleResult !== undefined && (
+              </Stack>
               <Typography
-                variant="body1"
-                color={eligibleResult ? 'success.main' : 'error.main'}
-                data-testid="credential-eligible-result"
+                variant="subtitle1"
+                sx={{
+                  fontFamily: '"JetBrains Mono", monospace',
+                  fontWeight: 600,
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
               >
-                {eligibleResult ? '✅ Eligible' : '❌ Not eligible'}
+                {deployedAPI?.deployedContractAddress ? (
+                  `0x${deployedAPI.deployedContractAddress.slice(0, 10)}...${deployedAPI.deployedContractAddress.slice(-8)}`
+                ) : (
+                  <Skeleton width={180} />
+                )}
+                {deployedAPI && (
+                  <Tooltip title={copied ? 'Copied!' : 'Copy full address'}>
+                    <IconButton size="small" onClick={onCopyContractAddress} sx={{ color: '#00f0ff' }}>
+                      {copied ? <CheckCircleIcon fontSize="small" sx={{ color: '#00e676' }} /> : <ContentCopyIcon fontSize="small" />}
+                    </IconButton>
+                  </Tooltip>
+                )}
               </Typography>
-            )}
-
-            <Divider sx={{ my: 1 }} />
+            </Box>
 
             <Button
+              variant="contained"
+              color="primary"
               size="small"
-              startIcon={showPrivateState ? <VisibilityOffIcon /> : <VisibilityIcon />}
-              onClick={onTogglePrivateState}
-              data-testid="credential-toggle-private-state"
+              startIcon={<HowToRegIcon />}
+              onClick={onIssueCredential}
+              data-testid="credential-issue-btn"
+              disabled={isWorking}
+              sx={{ fontWeight: 700 }}
             >
-              {showPrivateState ? 'Hide' : 'Debug: show'} my private data
+              Issue Credential Commitment
             </Button>
-            <Collapse in={showPrivateState}>
-              <Box sx={{ p: 1, background: 'rgba(255,255,255,0.06)', borderRadius: 1, mt: 1 }}>
-                <Typography variant="caption" sx={{ display: 'block' }} color="warning.main">
-                  Never sent on-chain — only visible in this browser session:
-                </Typography>
-                {privateState ? (
-                  <React.Fragment>
-                    <Typography variant="caption" sx={{ display: 'block' }} data-testid="private-score">
-                      score: {privateState.credential.score.toString()}
-                    </Typography>
-                    <Typography variant="caption" sx={{ display: 'block' }} data-testid="private-salt">
-                      salt: 0x{toHex(privateState.credential.salt).slice(0, 16)}...
-                    </Typography>
-                    <Typography variant="caption" sx={{ display: 'block' }} data-testid="private-owner-key">
-                      ownerSecretKey: 0x{toHex(privateState.ownerSecretKey).slice(0, 16)}...
-                    </Typography>
-                  </React.Fragment>
-                ) : (
-                  <Typography variant="caption">No private state available.</Typography>
-                )}
-              </Box>
-            </Collapse>
-          </CardContent>
-          <CardActions>
-            {deployedAPI ? (
-              <React.Fragment>
-                <Button size="small" onClick={onIssueCredential} data-testid="credential-issue-btn">
-                  Issue my credential
-                </Button>
-                <Button
-                  size="small"
-                  onClick={onProveEligibility}
-                  disabled={!thresholdInput.length}
-                  data-testid="credential-prove-btn"
-                >
-                  Prove eligibility
-                </Button>
-              </React.Fragment>
-            ) : (
-              <Skeleton variant="rectangular" width={200} height={20} />
+          </Box>
+
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            {errorMessage && (
+              <Alert severity="error" onClose={() => setErrorMessage(undefined)} sx={{ mb: 3, borderRadius: 2 }}>
+                {errorMessage}
+              </Alert>
             )}
-          </CardActions>
+
+            {successMessage && (
+              <Alert severity="success" onClose={() => setSuccessMessage(undefined)} sx={{ mb: 3, borderRadius: 2 }}>
+                {successMessage}
+              </Alert>
+            )}
+
+            {/* Verification Studio Section */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                mb: 3,
+                background: 'rgba(124, 92, 255, 0.06)',
+                border: '1px solid rgba(124, 92, 255, 0.3)',
+                borderRadius: 3,
+              }}
+            >
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+                <SecurityIcon sx={{ color: '#00f0ff' }} />
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#ffffff' }}>
+                  Zero-Knowledge Eligibility Gate
+                </Typography>
+              </Stack>
+              <Typography variant="body2" sx={{ color: '#b0a6e0', mb: 2.5 }}>
+                Prove to any verifier that your hidden credential satisfies <code style={{ color: '#00f0ff' }}>score &gt;= threshold</code> without disclosing the real score.
+              </Typography>
+
+              {/* Preset threshold pills */}
+              <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', alignSelf: 'center', mr: 0.5 }}>
+                  PRESETS:
+                </Typography>
+                {['50', '70', '80', '90'].map((bar) => (
+                  <Chip
+                    key={bar}
+                    label={`≥ ${bar}`}
+                    size="small"
+                    onClick={() => {
+                      setThresholdInput(bar);
+                      setEligibleResult(undefined);
+                    }}
+                    variant={thresholdInput === bar ? 'filled' : 'outlined'}
+                    color={thresholdInput === bar ? 'primary' : 'default'}
+                    sx={{ cursor: 'pointer', fontFamily: '"JetBrains Mono", monospace' }}
+                  />
+                ))}
+              </Stack>
+
+              <Grid container spacing={2} alignItems="center">
+                <Grid size={{ xs: 12, sm: 7 }}>
+                  <TextField
+                    id="threshold-prompt"
+                    data-testid="credential-threshold-prompt"
+                    variant="outlined"
+                    label="Minimum Required Score Bar (Threshold)"
+                    fullWidth
+                    size="medium"
+                    type="number"
+                    value={thresholdInput}
+                    onChange={(e) => {
+                      setThresholdInput(e.target.value);
+                      setEligibleResult(undefined);
+                    }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 5 }}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    fullWidth
+                    size="large"
+                    startIcon={<BoltIcon />}
+                    onClick={onProveEligibility}
+                    disabled={!thresholdInput.length || isWorking}
+                    data-testid="credential-prove-btn"
+                    sx={{ py: 1.4, fontWeight: 700 }}
+                  >
+                    Prove Eligibility (ZK)
+                  </Button>
+                </Grid>
+              </Grid>
+
+              {/* Proof Result Display */}
+              {eligibleResult !== undefined && (
+                <Box
+                  sx={{
+                    mt: 3,
+                    p: 2.5,
+                    borderRadius: 2.5,
+                    background: eligibleResult ? 'rgba(0, 230, 118, 0.12)' : 'rgba(255, 61, 113, 0.12)',
+                    border: `1px solid ${eligibleResult ? 'rgba(0, 230, 118, 0.4)' : 'rgba(255, 61, 113, 0.4)'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                  }}
+                >
+                  {eligibleResult ? (
+                    <CheckCircleIcon sx={{ fontSize: 36, color: '#00e676' }} />
+                  ) : (
+                    <CancelIcon sx={{ fontSize: 36, color: '#ff3d71' }} />
+                  )}
+                  <Box>
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 800, color: eligibleResult ? '#00e676' : '#ff3d71', lineHeight: 1.2 }}
+                      data-testid="credential-eligible-result"
+                    >
+                      {eligibleResult ? 'VERIFIED: ELIGIBLE' : 'VERIFIED: NOT ELIGIBLE'}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#ffffff', mt: 0.5 }}>
+                      {eligibleResult
+                        ? `ZK Proof Validated on Midnight: Credential score meets or exceeds ${thresholdInput}. Raw score remains 100% private.`
+                        : `ZK Proof Validated on Midnight: Credential score is below ${thresholdInput}.`}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </Paper>
+
+            {/* Observable Privacy Split Card */}
+            <Grid container spacing={2}>
+              {/* Public Ledger Column */}
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    background: 'rgba(0, 240, 255, 0.03)',
+                    border: '1px solid rgba(0, 240, 255, 0.2)',
+                    borderRadius: 3,
+                    height: '100%',
+                  }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+                    <VisibilityIcon sx={{ color: '#00f0ff', fontSize: 20 }} />
+                    <Typography variant="subtitle2" sx={{ color: '#00f0ff', fontWeight: 700 }}>
+                      What Any Observer Sees
+                    </Typography>
+                  </Stack>
+                  <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', display: 'block', mb: 2 }}>
+                    Public on-chain ledger state
+                  </Typography>
+
+                  {derivedState ? (
+                    <Stack spacing={1.5}>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#b0a6e0' }}>
+                          Approved Issuer Public Key:
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontFamily: '"JetBrains Mono", monospace', color: '#ffffff' }} data-testid="credential-issuer-key">
+                          0x{toHex(derivedState.issuerKey).slice(0, 14)}...
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#b0a6e0' }}>
+                          Commitments Registered:
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#00f0ff' }} data-testid="credential-count">
+                          {derivedState.credentialCount.toString()} commitment(s)
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  ) : (
+                    <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 2 }} />
+                  )}
+                </Paper>
+              </Grid>
+
+              {/* Private Witness Column */}
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    background: 'rgba(124, 92, 255, 0.05)',
+                    border: '1px solid rgba(124, 92, 255, 0.25)',
+                    borderRadius: 3,
+                    height: '100%',
+                  }}
+                >
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <VisibilityOffIcon sx={{ color: '#a48eff', fontSize: 20 }} />
+                      <Typography variant="subtitle2" sx={{ color: '#a48eff', fontWeight: 700 }}>
+                        Your Private Witness
+                      </Typography>
+                    </Stack>
+                    <Button
+                      size="small"
+                      variant="text"
+                      onClick={onTogglePrivateState}
+                      data-testid="credential-toggle-private-state"
+                      sx={{ fontSize: '0.75rem', p: 0.5, color: '#a48eff' }}
+                    >
+                      {showPrivateState ? 'Hide' : 'Inspect'}
+                    </Button>
+                  </Stack>
+                  <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.6)', display: 'block', mb: 2 }}>
+                    Client-side browser state (Never sent on-chain)
+                  </Typography>
+
+                  <Collapse in={showPrivateState}>
+                    {privateState ? (
+                      <Stack spacing={1} sx={{ p: 1.5, background: 'rgba(0, 0, 0, 0.3)', borderRadius: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#00e676', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-score">
+                          raw_score: {privateState.credential.score.toString()} / 100
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#b0a6e0', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-salt">
+                          salt: 0x{toHex(privateState.credential.salt).slice(0, 12)}...
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#b0a6e0', fontFamily: '"JetBrains Mono", monospace' }} data-testid="private-owner-key">
+                          owner_sk: 0x{toHex(privateState.ownerSecretKey).slice(0, 12)}...
+                        </Typography>
+                      </Stack>
+                    ) : (
+                      <Typography variant="caption" sx={{ color: '#ffaa00' }}>
+                        Loading local witness data...
+                      </Typography>
+                    )}
+                  </Collapse>
+                  {!showPrivateState && (
+                    <Typography variant="body2" sx={{ color: '#b0a6e0', fontStyle: 'italic' }}>
+                      Protected by Midnight ZK circuits. Click "Inspect" to view local witnesses.
+                    </Typography>
+                  )}
+                </Paper>
+              </Grid>
+            </Grid>
+          </CardContent>
         </React.Fragment>
       )}
     </Card>
   );
 };
-
-/** @internal */
-const toShortFormatContractAddress = (contractAddress: ContractAddress | undefined): React.ReactElement | undefined =>
-  contractAddress ? (
-    <span data-testid="credential-address">
-      0x{contractAddress?.replace(/^[A-Fa-f0-9]{6}([A-Fa-f0-9]{8}).*([A-Fa-f0-9]{8})$/g, '$1...$2')}
-    </span>
-  ) : undefined;
