@@ -9,32 +9,33 @@
 > 🚀 **Live Demo DApp**: [https://umbracred-ashy.vercel.app](https://umbracred-ashy.vercel.app)  
 > 🐦 **Product X (Twitter)**: [https://x.com/UmbraCred](https://x.com/UmbraCred) (`@UmbraCred`)  
 > 🔗 **GitHub Repository**: [https://github.com/Khanh-09/umbracred](https://github.com/Khanh-09/umbracred)  
+> 👥 **50 Preprod User Cohort & Feedback**: [`FEEDBACK_LOOP.md`](FEEDBACK_LOOP.md)  
 > 📜 **Preprod Contract Address**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957` (Verifiable on [Midnight Preprod Explorer](https://preprod.midnightexplorer.com))
 
 **Confidential Credential Verification on [Midnight](https://midnight.network)**. An approved issuer registers a cryptographic commitment to a credential on Midnight's public ledger without revealing its contents; the holder later proves the credential meets a public threshold (e.g. "score ≥ 70") using Zero-Knowledge proofs without ever revealing the real score, salt, credential metadata, or their identity.
 
 ---
 
-## 🌔 Status — Level 4 (Waxing Gibbous)
+## 🌕 Status — Level 5 (Full Moon)
 
-- **Working MVP on Preprod**: Full-stack ZK DApp deployed at [https://umbracred-ashy.vercel.app](https://umbracred-ashy.vercel.app) connecting to Midnight Preprod Testnet via Midnight Lace Wallet DApp connector API (`4.x`).
-- **Verifiable Contract Address**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957` deployed with Compact v0.31.0 on Midnight Preprod.
-- **Comprehensive Documentation**: Complete system architecture, step-by-step setup, Docker proof server guide, and user flows for Issuers, Holders, and Verifiers.
+- **User Onboarding & 50 Preprod Users**: Successfully onboarded **50 active Preprod alpha testers** across engineers, students, and recruiters with on-chain verifiable addresses (cataloged in [`FEEDBACK_LOOP.md`](FEEDBACK_LOOP.md)).
+- **Structured Feedback Loop & Prioritization**: Established user feedback channels, mapped user insights using the **RICE prioritization matrix**, and implemented core UX improvements (connector timeout extension to 60s, locked wallet recovery, auto-clearing banners).
+- **Extended MVP on Preprod**: Full-stack ZK DApp deployed at [https://umbracred-ashy.vercel.app](https://umbracred-ashy.vercel.app) with 1-click test presets, Interactive Zero-Knowledge Privacy Inspector, and dual-state ledger synchronization.
+- **Verifiable Contract Address**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957` deployed on Midnight Preprod.
 - **Continuous Integration (CI/CD)**: GitHub Actions workflow at [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) running on every push, verifying Compact compilation, TypeScript typechecks, lint rules, and contract test suites.
-- **Building in Public & Product X**: Official product handle [@UmbraCred](https://x.com/UmbraCred) created and linked in the repository and application UI.
-- **Meaningful Commits**: 28+ atomic, well-documented commits tracking the entire product lifecycle from smart contract design to frontend deployment.
+- **Building in Public**: Official product handle [@UmbraCred](https://x.com/UmbraCred) linked in repository, UI footer, and active community announcements.
+- **Meaningful Commits**: 30+ atomic, well-documented commits tracking product lifecycle, testing iterations, and feedback loop implementations.
 
 ---
 
-## ✅ Level 4 Submission Checklist
+## ✅ Level 5 Submission Checklist
 
-- [x] **Public GitHub Repository**: [https://github.com/Khanh-09/umbracred](https://github.com/Khanh-09/umbracred) with full technical & user documentation.
+- [x] **Public GitHub Repository**: [https://github.com/Khanh-09/umbracred](https://github.com/Khanh-09/umbracred) with full technical, user, and feedback loop documentation.
 - [x] **Live Preprod Demo Link**: [https://umbracred-ashy.vercel.app](https://umbracred-ashy.vercel.app)
-- [x] **Verifiable Contract Address**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957`
-- [x] **CI/CD Badge & Passing Runs**: Automated CI pipeline running via [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml).
-- [x] **Product X Profile**: [@UmbraCred](https://x.com/UmbraCred) linked in README and application Footer.
-- [x] **Demo Video**: Complete video walkthrough of wallet connection and ZK circuit execution.
-- [x] **Commit History**: 28+ atomic, descriptive commits (exceeds the 15-commit requirement).
+- [x] **50 Preprod User Addresses**: Cataloged and on-chain verifiable in [`FEEDBACK_LOOP.md`](FEEDBACK_LOOP.md#2-verifiable-preprod-user-cohort-50-on-chain-addresses).
+- [x] **Feedback Documentation & Prioritization**: Detailed RICE matrix, user cohort themes, and changelog in [`FEEDBACK_LOOP.md`](FEEDBACK_LOOP.md).
+- [x] **Demo Video of the MVP**: Complete video walkthrough of wallet connection and ZK circuit execution.
+- [x] **Commit History**: 30+ atomic, descriptive commits (exceeds the 20-commit requirement).
 
 ---
 
