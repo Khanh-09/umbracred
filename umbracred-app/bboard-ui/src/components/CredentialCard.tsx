@@ -55,6 +55,8 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
 
   const onCreateCredential = useCallback(
     (score: string) => {
+      setErrorMessage(undefined);
+      setSuccessMessage(undefined);
       setWorkingLabel('Deploying UmbraCred contract & registering issuer...');
       return credentialApiProvider.deploy(BigInt(score || '0'));
     },
@@ -63,6 +65,8 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
 
   const onJoinCredential = useCallback(
     (contractAddress: ContractAddress) => {
+      setErrorMessage(undefined);
+      setSuccessMessage(undefined);
       setWorkingLabel('Joining deployed Midnight contract...');
       return credentialApiProvider.join(contractAddress);
     },
@@ -138,6 +142,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
       return;
     }
 
+    setErrorMessage(undefined);
     setDeployedAPI(credentialDeployment.api);
     const subscription = credentialDeployment.api.state$.subscribe(setDerivedState);
     return () => {
