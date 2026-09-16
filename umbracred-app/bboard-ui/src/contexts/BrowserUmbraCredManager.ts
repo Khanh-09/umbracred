@@ -352,12 +352,11 @@ const connectToWallet = (logger: Logger, networkId: string): Promise<ConnectedAP
       }),
       take(1),
       timeout({
-        first: 1_000,
+        first: 8_000,
         with: () =>
           throwError(() => {
             logger.error('Could not find wallet connector API');
-
-            return new Error('Could not find Midnight Lace wallet. Extension installed?');
+            return new Error('Could not find Midnight Lace wallet. Extension installed & enabled?');
           }),
       }),
       concatMap(async (initialAPI) => {
@@ -367,22 +366,25 @@ const connectToWallet = (logger: Logger, networkId: string): Promise<ConnectedAP
         return connectedAPI;
       }),
       timeout({
-        first: 5_000,
+        first: 60_000,
         with: () =>
           throwError(() => {
-            logger.error('Wallet connector API has failed to respond');
-
-            return new Error('Midnight Lace wallet has failed to respond. Extension enabled?');
+            logger.error('Wallet connector API has timed out waiting for user approval');
+            return new Error('Midnight Lace wallet request timed out. Please unlock your wallet and try again.');
           }),
       }),
-      catchError((error, apis) =>
-        error
-          ? throwError(() => {
-              logger.error('Unable to enable connector API' + error);
-              return new Error('Application is not authorized');
-            })
-          : apis,
-      ),
+      catchError((error, apis) => {
+        if (!error) return apis;
+        const rawMsg = error instanceof Error ? error.message : String(error);
+        logger.error({ error }, 'Unable to enable connector API: ' + rawMsg);
+        if (rawMsg.toLowerCase().includes('locked') || rawMsg.toLowerCase().includes('unlock')) {
+          return throwError(() => new Error('Lace Wallet is locked. Please open the Lace extension and enter your password.'));
+        }
+        if (rawMsg.toLowerCase().includes('reject') || rawMsg.toLowerCase().includes('denied') || rawMsg.toLowerCase().includes('cancel')) {
+          return throwError(() => new Error('Connection request was declined in Lace wallet.'));
+        }
+        return throwError(() => (error instanceof Error ? error : new Error(rawMsg)));
+      }),
     ),
   );
 };
