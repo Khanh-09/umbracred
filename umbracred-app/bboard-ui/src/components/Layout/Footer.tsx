@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Container, Divider, Link, Typography } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import TwitterIcon from '@mui/icons-material/Twitter';
 
 export const Footer: React.FC = () => {
   return (
@@ -79,6 +80,12 @@ export const Footer: React.FC = () => {
                 <GitHubIcon sx={{ fontSize: 18, color: '#a48eff' }} />
                 <Link href="https://github.com/Khanh-09/umbracred" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                   Open Source
+                </Link>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
+                <TwitterIcon sx={{ fontSize: 18, color: '#a48eff' }} />
+                <Link href="https://x.com/UmbraCred" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
+                  Product X (@UmbraCred)
                 </Link>
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
