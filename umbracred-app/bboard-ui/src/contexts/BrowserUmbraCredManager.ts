@@ -192,7 +192,16 @@ export class BrowserUmbraCredManager implements DeployedCredentialAPIProvider {
   }
 
   /** @inheritdoc */
-  join(contractAddress: ContractAddress): Observable<CredentialDeployment> {
+  join(rawContractAddress: ContractAddress): Observable<CredentialDeployment> {
+    let cleanAddress = (rawContractAddress as string).trim();
+    if (cleanAddress.startsWith('0x') || cleanAddress.startsWith('0X')) {
+      cleanAddress = cleanAddress.slice(2);
+    }
+    if (cleanAddress.length === 68 && (cleanAddress.startsWith('0200') || cleanAddress.startsWith('0000'))) {
+      cleanAddress = cleanAddress.slice(4);
+    }
+    const contractAddress = cleanAddress as ContractAddress;
+
     const deployments = this.#credentialDeploymentsSubject.value;
     let deployment = deployments.find(
       (deployment) =>
@@ -282,30 +291,19 @@ const initializeProviders = async (
   if (onConnected) {
     onConnected(connectedAPI, shieldedAddresses);
   }
-  const proverServerUri =
-    (import.meta.env.VITE_PROVER_SERVER_URI as string | undefined) ||
-    config.proverServerUri ||
-    'http://localhost:6300';
-  const baseProofProvider = httpClientProofProvider(proverServerUri, keyMaterialProvider);
-  const proofProvider = {
-    prove: async (circuitId: any, witness: any) => {
-      try {
-        return await baseProofProvider.prove(circuitId, witness);
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('fetch')) {
-          throw new Error(
-            `Proof Server unreachable at ${proverServerUri}. When running on HTTPS (Vercel), browsers block HTTP localhost connections. Please set 'Insecure content' -> 'Allow' in Chrome Site Settings (URL lock icon -> Site settings).`,
-          );
-        }
-        throw err;
-      }
-    },
-  };
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const proverServerUri = isLocalhost
+    ? `${window.location.origin}/proof-api`
+    : (config.proverServerUri && config.proverServerUri.trim().length > 0
+        ? config.proverServerUri.replace(/\/+$/, '')
+        : 'http://127.0.0.1:6300');
+
+  logger.info({ proverServerUri }, 'Configured proof provider URI');
+
   return {
     privateStateProvider: inMemoryUmbraCredPrivateStateProvider,
     zkConfigProvider: keyMaterialProvider,
-    proofProvider,
+    proofProvider: httpClientProofProvider(proverServerUri, keyMaterialProvider),
     publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),
     walletProvider: {
       getCoinPublicKey(): string {
