@@ -291,31 +291,19 @@ const initializeProviders = async (
   if (onConnected) {
     onConnected(connectedAPI, shieldedAddresses);
   }
-  let proofProvider;
-  if (typeof connectedAPI.getProvingProvider === 'function') {
-    try {
-      proofProvider = await connectedAPI.getProvingProvider(keyMaterialProvider as any);
-      logger.info('Using wallet-managed proving provider');
-    } catch (err) {
-      logger.warn({ err }, 'Could not get proving provider from wallet, falling back to HTTP client proof provider');
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  let proverServerUri: string;
+  if (isLocalhost) {
+    proverServerUri = `${window.location.origin}/proof-api`;
+  } else {
+    if (!config.proverServerUri?.trim()) {
+      throw new Error('Lace wallet did not provide a Midnight proverServerUri.');
     }
+    proverServerUri = config.proverServerUri.replace(/\/+$/, '');
   }
 
-  if (!proofProvider) {
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    let proverServerUri: string;
-    if (isLocalhost) {
-      proverServerUri = `${window.location.origin}/proof-api`;
-    } else {
-      if (!config.proverServerUri?.trim()) {
-        throw new Error('Lace wallet did not provide a Midnight proverServerUri and wallet-managed proving is not supported.');
-      }
-      proverServerUri = config.proverServerUri.replace(/\/+$/, '');
-    }
-
-    logger.info({ proverServerUri }, 'Configured HTTP client proof provider URI');
-    proofProvider = httpClientProofProvider(proverServerUri, keyMaterialProvider);
-  }
+  logger.info({ proverServerUri }, 'Configured HTTP client proof provider URI');
+  const proofProvider = httpClientProofProvider(proverServerUri, keyMaterialProvider);
 
   return {
     privateStateProvider: inMemoryUmbraCredPrivateStateProvider,
