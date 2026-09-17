@@ -39,10 +39,16 @@ export interface CredentialCardProps {
 const formatFriendlyErrorMessage = (error: unknown): string => {
   const msg = error instanceof Error ? error.message : String(error);
   if (msg.includes('Failed to fetch') || (msg.includes('prove') && msg.includes('fetch'))) {
-    return 'Could not connect to Midnight Proof Server at http://localhost:6300. Please ensure Docker Proof Server is running. On Chrome/Edge, disable Private Network block at chrome://flags/#block-insecure-private-network-requests.';
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    return isLocal
+      ? 'Could not connect to Midnight Proof Server at http://localhost:6300. Please ensure Docker Proof Server is running and server proxy is active.'
+      : 'Unable to reach the configured Midnight proof service. Please check your Lace Wallet network/prover settings or use the local development gateway.';
+  }
+  if (msg.includes('proverServerUri')) {
+    return 'Lace wallet did not provide a Midnight proof server endpoint. Please verify your Lace Wallet network settings.';
   }
   if (msg.includes('Credential commitment not found on ledger')) {
-    return 'Credential has not been registered on the blockchain yet. Please click "Register Credential" (top right) to record your credential on the Midnight ledger before proving eligibility.';
+    return 'Credential has not been registered on the blockchain yet. Please click "Issue My Credential" to record your credential on the Midnight ledger before proving eligibility.';
   }
   if (msg.includes('No dust tokens found') || msg.includes('InsufficientFunds')) {
     return 'Insufficient DUST tokens in Lace Wallet. Open Lace -> DUST tab -> click "Register NIGHT for DUST generation" to generate gas tokens.';
