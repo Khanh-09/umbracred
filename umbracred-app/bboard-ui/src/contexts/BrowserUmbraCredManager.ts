@@ -193,14 +193,14 @@ export class BrowserUmbraCredManager implements DeployedCredentialAPIProvider {
 
   /** @inheritdoc */
   join(rawContractAddress: ContractAddress): Observable<CredentialDeployment> {
-    let cleanAddress = (rawContractAddress as string).trim();
+    let cleanAddress = rawContractAddress.trim();
     if (cleanAddress.startsWith('0x') || cleanAddress.startsWith('0X')) {
       cleanAddress = cleanAddress.slice(2);
     }
     if (cleanAddress.length === 68 && (cleanAddress.startsWith('0200') || cleanAddress.startsWith('0000'))) {
       cleanAddress = cleanAddress.slice(4);
     }
-    const contractAddress = cleanAddress as ContractAddress;
+    const contractAddress = cleanAddress;
 
     const deployments = this.#credentialDeploymentsSubject.value;
     let deployment = deployments.find(

@@ -56,7 +56,7 @@ export const TextPromptDialog: React.FC<Readonly<TextPromptDialogProps>> = ({ pr
           onChange={(e) => {
             setText(e.target.value);
           }}
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           inputRef={(input) => input?.focus()}
           data-testid="textprompt-dialog-text-prompt"
         />
