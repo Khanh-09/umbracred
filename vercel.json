@@ -2,5 +2,15 @@
   "installCommand": "npm ci --legacy-peer-deps --prefix umbracred-app",
   "buildCommand": "npm run build --prefix umbracred-app/bboard-ui",
   "outputDirectory": "umbracred-app/bboard-ui/dist",
-  "framework": "vite"
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/proof-api/:match*",
+      "destination": "https://proof-server.preprod.midnight.network/:match*"
+    },
+    {
+      "source": "/api/proof/:match*",
+      "destination": "https://proof-server.preprod.midnight.network/:match*"
+    }
+  ]
 }

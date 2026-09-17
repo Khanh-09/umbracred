@@ -1,4 +1,5 @@
 import http from 'node:http';
+import https from 'node:https';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -6,7 +7,8 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DIST_DIR = path.join(__dirname, 'bboard-ui', 'dist');
-const PROXY_TARGET = 'http://127.0.0.1:6300';
+const REMOTE_PROVER = 'https://proof-server.preprod.midnight.network';
+const LOCAL_PROVER = 'http://127.0.0.1:6300';
 const PORT = 8080;
 
 const MIME_TYPES = {
@@ -39,16 +41,25 @@ const server = http.createServer((req, res) => {
 
   const url = new URL(req.url || '/', `http://${req.headers.host}`);
 
-  // Proxy ZK Proof server calls (same-origin proxy)
+  // Proxy ZK Proof server calls
   if (url.pathname.startsWith('/proof-api') || url.pathname.startsWith('/prove')) {
-    const targetPath = url.pathname.replace(/^\/proof-api/, '') || '/prove';
-    const proxyReq = http.request(
-      `${PROXY_TARGET}${targetPath}${url.search}`,
+    const subPath = url.pathname.replace(/^\/proof-api/, '') || '/prove';
+    const targetUrl = new URL(subPath + url.search, REMOTE_PROVER);
+
+    const client = targetUrl.protocol === 'https:' ? https : http;
+
+    const proxyHeaders = { ...req.headers };
+    delete proxyHeaders.host;
+    delete proxyHeaders.origin;
+    delete proxyHeaders.referer;
+
+    const proxyReq = client.request(
+      targetUrl,
       {
         method: req.method,
         headers: {
-          ...req.headers,
-          host: '127.0.0.1:6300',
+          ...proxyHeaders,
+          host: targetUrl.host,
         },
       },
       (proxyRes) => {
@@ -62,9 +73,34 @@ const server = http.createServer((req, res) => {
     );
 
     proxyReq.on('error', (err) => {
-      console.error('Proof proxy error:', err);
-      res.writeHead(502, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Proof server unavailable', details: err.message }));
+      console.error(`Remote proof proxy error (${targetUrl.href}), trying local docker prover...`, err.message);
+      // Fallback to local Docker proof server if remote fails
+      const localReq = http.request(
+        `${LOCAL_PROVER}${subPath}${url.search}`,
+        {
+          method: req.method,
+          headers: {
+            ...proxyHeaders,
+            host: '127.0.0.1:6300',
+          },
+        },
+        (localRes) => {
+          res.writeHead(localRes.statusCode || 200, {
+            ...localRes.headers,
+            'access-control-allow-origin': '*',
+            'access-control-allow-private-network': 'true',
+          });
+          localRes.pipe(res);
+        },
+      );
+
+      localReq.on('error', (localErr) => {
+        console.error('Local proof proxy error:', localErr.message);
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Proof server unavailable', details: localErr.message }));
+      });
+
+      req.pipe(localReq);
     });
 
     req.pipe(proxyReq);
@@ -94,6 +130,6 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`[UmbraCred Dev Server] Running at http://localhost:${PORT}`);
-  console.log(`[UmbraCred Dev Server] Proxies /proof-api -> ${PROXY_TARGET}`);
+  console.log(`[UmbraCred Gateway] Running at http://localhost:${PORT}`);
+  console.log(`[UmbraCred Gateway] Proxies /proof-api -> ${REMOTE_PROVER}`);
 });
