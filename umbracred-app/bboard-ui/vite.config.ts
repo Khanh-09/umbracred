@@ -21,6 +21,18 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: {
+    port: 8080,
+    host: '0.0.0.0',
+    proxy: {
+      '/proof-api': {
+        target: 'https://proof-server.preprod.midnight.network',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/proof-api/, ''),
+      },
+    },
+  },
   cacheDir: './.vite',
   build: {
     target: 'esnext',
