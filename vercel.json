@@ -6,11 +6,11 @@
   "rewrites": [
     {
       "source": "/proof-api/:match*",
-      "destination": "https://proof-server.preprod.midnight.network/:match*"
+      "destination": "/api/proof-api"
     },
     {
       "source": "/api/proof/:match*",
-      "destination": "https://proof-server.preprod.midnight.network/:match*"
+      "destination": "/api/proof"
     }
   ]
 }
