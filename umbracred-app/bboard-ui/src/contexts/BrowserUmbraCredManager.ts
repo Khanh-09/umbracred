@@ -282,10 +282,30 @@ const initializeProviders = async (
   if (onConnected) {
     onConnected(connectedAPI, shieldedAddresses);
   }
+  const proverServerUri =
+    (import.meta.env.VITE_PROVER_SERVER_URI as string | undefined) ||
+    config.proverServerUri ||
+    'http://localhost:6300';
+  const baseProofProvider = httpClientProofProvider(proverServerUri, keyMaterialProvider);
+  const proofProvider = {
+    prove: async (circuitId: any, witness: any) => {
+      try {
+        return await baseProofProvider.prove(circuitId, witness);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('fetch')) {
+          throw new Error(
+            `Proof Server unreachable at ${proverServerUri}. When running on HTTPS (Vercel), browsers block HTTP localhost connections. Please set 'Insecure content' -> 'Allow' in Chrome Site Settings (URL lock icon -> Site settings).`,
+          );
+        }
+        throw err;
+      }
+    },
+  };
   return {
     privateStateProvider: inMemoryUmbraCredPrivateStateProvider,
     zkConfigProvider: keyMaterialProvider,
-    proofProvider: httpClientProofProvider(config.proverServerUri!, keyMaterialProvider),
+    proofProvider,
     publicDataProvider: indexerPublicDataProvider(config.indexerUri, config.indexerWsUri),
     walletProvider: {
       getCoinPublicKey(): string {

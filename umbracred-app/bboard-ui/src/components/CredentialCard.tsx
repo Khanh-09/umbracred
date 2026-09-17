@@ -98,7 +98,14 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
       const result = await deployedAPI.proveEligibility(BigInt(thresholdInput));
       setEligibleResult(result);
     } catch (error: unknown) {
-      setErrorMessage(error instanceof Error ? error.message : String(error));
+      const rawMsg = error instanceof Error ? error.message : String(error);
+      if (rawMsg.includes('Credential commitment not found') || rawMsg.includes('failed assert')) {
+        setErrorMessage(
+          'Credential commitment is not registered on the ledger yet. Please click "Register Credential" first to publish your credential commitment on-chain, then run Prove Eligibility.',
+        );
+      } else {
+        setErrorMessage(rawMsg);
+      }
     } finally {
       setIsWorking(false);
     }
