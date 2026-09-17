@@ -36,6 +36,23 @@ export interface CredentialCardProps {
   credentialDeployment$?: Observable<CredentialDeployment>;
 }
 
+const formatFriendlyErrorMessage = (error: unknown): string => {
+  const msg = error instanceof Error ? error.message : String(error);
+  if (msg.includes('Failed to fetch') || (msg.includes('prove') && msg.includes('fetch'))) {
+    return 'Could not connect to Midnight Proof Server at http://localhost:6300. Please ensure Docker Proof Server is running. On Chrome/Edge, disable Private Network block at chrome://flags/#block-insecure-private-network-requests.';
+  }
+  if (msg.includes('Credential commitment not found on ledger')) {
+    return 'Credential has not been registered on the blockchain yet. Please click "Register Credential" (top right) to record your credential on the Midnight ledger before proving eligibility.';
+  }
+  if (msg.includes('No dust tokens found') || msg.includes('InsufficientFunds')) {
+    return 'Insufficient DUST tokens in Lace Wallet. Open Lace -> DUST tab -> click "Register NIGHT for DUST generation" to generate gas tokens.';
+  }
+  if (msg.includes('Wallet is locked') || msg.includes('unlock the wallet')) {
+    return 'Lace Wallet is locked. Please open the Lace extension and enter your password.';
+  }
+  return msg;
+};
+
 export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ credentialDeployment$ }) => {
   const credentialApiProvider = useDeployedCredentialContext();
   const [credentialDeployment, setCredentialDeployment] = useState<CredentialDeployment>();
@@ -82,7 +99,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
       await deployedAPI.issueMyCredential();
       setSuccessMessage('Credential commitment successfully registered on Midnight ledger!');
     } catch (error: unknown) {
-      setErrorMessage(error instanceof Error ? error.message : String(error));
+      setErrorMessage(formatFriendlyErrorMessage(error));
     } finally {
       setIsWorking(false);
     }
@@ -98,14 +115,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
       const result = await deployedAPI.proveEligibility(BigInt(thresholdInput));
       setEligibleResult(result);
     } catch (error: unknown) {
-      const rawMsg = error instanceof Error ? error.message : String(error);
-      if (rawMsg.includes('Credential commitment not found') || rawMsg.includes('failed assert')) {
-        setErrorMessage(
-          'Credential commitment is not registered on the ledger yet. Please click "Register Credential" first to publish your credential commitment on-chain, then run Prove Eligibility.',
-        );
-      } else {
-        setErrorMessage(rawMsg);
-      }
+      setErrorMessage(formatFriendlyErrorMessage(error));
     } finally {
       setIsWorking(false);
     }
