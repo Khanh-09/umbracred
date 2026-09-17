@@ -291,11 +291,15 @@ const initializeProviders = async (
   if (onConnected) {
     onConnected(connectedAPI, shieldedAddresses);
   }
-  // Always route proving through same-origin proxy to eliminate browser CORS blocks
-  // Local gateway proxies /proof-api -> https://proof-server.preprod.midnight.network (with local Docker fallback)
-  // Vercel serverless rewrites /proof-api -> https://proof-server.preprod.midnight.network
-  const proverServerUri = `${window.location.origin}/proof-api`;
+  const isLocalhost =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
 
+  const proverServerUri = isLocalhost
+    ? `${window.location.origin}/proof-api`
+    : `${window.location.origin}/proof-api`;
+
+  console.log('🔥 PROVER URI:', proverServerUri);
   logger.info({ proverServerUri }, 'Configured same-origin proof provider proxy URI');
   const proofProvider = httpClientProofProvider(proverServerUri, keyMaterialProvider);
 
