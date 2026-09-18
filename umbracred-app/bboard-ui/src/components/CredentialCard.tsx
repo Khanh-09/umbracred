@@ -10,6 +10,10 @@ import {
   Chip,
   CircularProgress,
   Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   Paper,
   Skeleton,
@@ -25,6 +29,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOffOutlined';
 import SecurityIcon from '@mui/icons-material/Security';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import BoltIcon from '@mui/icons-material/Bolt';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { type UmbraCredDerivedState, type DeployedUmbraCredAPI } from '../../../api/src/index';
 import { type UmbraCredPrivateState } from '../../../contract/src/index';
 import { useDeployedCredentialContext } from '../hooks';
@@ -86,6 +91,34 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
 
   const [showPrivateState, setShowPrivateState] = useState(false);
   const [privateState, setPrivateState] = useState<UmbraCredPrivateState | null>();
+  const [isProverDialogOpen, setIsProverDialogOpen] = useState(false);
+  const [customProverUrl, setCustomProverUrl] = useState(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('umbra_prover_url') || '' : '',
+  );
+
+  const handleSaveProver = () => {
+    if (customProverUrl.trim()) {
+      localStorage.setItem('umbra_prover_url', customProverUrl.trim());
+    } else {
+      localStorage.removeItem('umbra_prover_url');
+    }
+    setIsProverDialogOpen(false);
+    window.location.reload();
+  };
+
+  const handleUseDockerLocal = () => {
+    localStorage.setItem('umbra_prover_url', 'http://localhost:6300');
+    setCustomProverUrl('http://localhost:6300');
+    setIsProverDialogOpen(false);
+    window.location.reload();
+  };
+
+  const handleResetDefault = () => {
+    localStorage.removeItem('umbra_prover_url');
+    setCustomProverUrl('');
+    setIsProverDialogOpen(false);
+    window.location.reload();
+  };
 
   const onCreateCredential = useCallback(
     (score: string) => {
@@ -298,7 +331,31 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
           <CardContent sx={{ p: 3 }}>
             {/* Status alerts */}
             {errorMessage && (
-              <Alert severity="error" sx={{ mb: 3 }} onClose={() => setErrorMessage(undefined)}>
+              <Alert
+                severity="error"
+                sx={{ mb: 3 }}
+                onClose={() => setErrorMessage(undefined)}
+                action={
+                  errorMessage.includes('Proof Server') || errorMessage.includes('Prover') ? (
+                    <Button
+                      color="inherit"
+                      size="small"
+                      startIcon={<SettingsIcon />}
+                      onClick={() => setIsProverDialogOpen(true)}
+                      sx={{
+                        fontWeight: 700,
+                        textTransform: 'none',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        borderRadius: 1.5,
+                        px: 1.5,
+                        '&:hover': { background: 'rgba(255, 255, 255, 0.15)' },
+                      }}
+                    >
+                      Fix / Setup Prover
+                    </Button>
+                  ) : undefined
+                }
+              >
                 {errorMessage}
               </Alert>
             )}
@@ -524,6 +581,109 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
           </CardContent>
         </React.Fragment>
       )}
+
+      {/* Prover Setup & Configuration Dialog */}
+      <Dialog
+        open={isProverDialogOpen}
+        onClose={() => setIsProverDialogOpen(false)}
+        slotProps={{
+          paper: {
+            sx: {
+              backgroundColor: '#120f29',
+              backgroundImage: 'none',
+              border: '1px solid rgba(124, 92, 255, 0.4)',
+              color: '#ffffff',
+              borderRadius: 3,
+              p: 1,
+              minWidth: { xs: 320, sm: 520 },
+            },
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <SettingsIcon sx={{ color: '#00f0ff' }} /> Midnight ZK Proof Server Setup
+        </DialogTitle>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: '12px !important' }}>
+          <Typography variant="body2" sx={{ color: 'rgba(215, 207, 255, 0.85)' }}>
+            Midnight executes Zero-Knowledge circuits client-side to keep your private score &amp; salt confidential.
+          </Typography>
+
+          <Box sx={{ p: 2, background: 'rgba(0, 240, 255, 0.08)', borderRadius: 2, border: '1px solid rgba(0, 240, 255, 0.25)' }}>
+            <Typography variant="subtitle2" sx={{ color: '#00f0ff', fontWeight: 700, mb: 1 }}>
+              💡 Option 1: Run Local Docker Prover (Recommended)
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.8)', display: 'block', mb: 1 }}>
+              Run this command in terminal to start the official Midnight proof server:
+            </Typography>
+            <Box
+              sx={{
+                p: 1.2,
+                background: '#070514',
+                borderRadius: 1.5,
+                border: '1px solid rgba(124, 92, 255, 0.3)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant="caption" sx={{ fontFamily: 'monospace', color: '#00e676', fontWeight: 600 }}>
+                docker run -d -p 6300:6300 midnightnetwork/proof-server
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => navigator.clipboard.writeText('docker run -d -p 6300:6300 midnightnetwork/proof-server')}
+                sx={{ color: '#00f0ff', ml: 1 }}
+              >
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={handleUseDockerLocal}
+              sx={{ mt: 1.5, borderColor: '#00f0ff', color: '#00f0ff', textTransform: 'none', fontWeight: 600 }}
+            >
+              Use http://localhost:6300
+            </Button>
+          </Box>
+
+          <Box sx={{ p: 2, background: 'rgba(124, 92, 255, 0.08)', borderRadius: 2, border: '1px solid rgba(124, 92, 255, 0.25)' }}>
+            <Typography variant="subtitle2" sx={{ color: '#d7cfff', fontWeight: 700, mb: 1 }}>
+              🌐 Option 2: Custom / Remote Prover URL
+            </Typography>
+            <TextField
+              label="Prover Server Endpoint"
+              placeholder="e.g. http://localhost:6300 or https://your-prover-host"
+              value={customProverUrl}
+              onChange={(e) => setCustomProverUrl(e.target.value)}
+              fullWidth
+              size="small"
+              variant="outlined"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  color: '#ffffff',
+                  '& fieldset': { borderColor: 'rgba(124, 92, 255, 0.4)' },
+                  '&:hover fieldset': { borderColor: '#7c5cff' },
+                },
+                '& .MuiInputLabel-root': { color: 'rgba(215, 207, 255, 0.7)' },
+              }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
+          <Button onClick={handleResetDefault} color="inherit" sx={{ color: 'rgba(215, 207, 255, 0.6)' }}>
+            Reset to Default
+          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button onClick={() => setIsProverDialogOpen(false)} color="inherit">
+              Cancel
+            </Button>
+            <Button onClick={handleSaveProver} variant="contained" sx={{ background: 'linear-gradient(135deg, #7c5cff 0%, #5436d6 100%)' }}>
+              Save &amp; Reload
+            </Button>
+          </Box>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };
