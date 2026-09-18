@@ -38,11 +38,22 @@ export interface CredentialCardProps {
 
 const formatFriendlyErrorMessage = (error: unknown): string => {
   const msg = error instanceof Error ? error.message : String(error);
-  if (msg.includes('Failed to fetch') || (msg.includes('prove') && msg.includes('fetch'))) {
+  if (
+    msg.includes('Failed Proof Server response') ||
+    msg.includes('/proof-api/check') ||
+    msg.includes('Failed to fetch') ||
+    (msg.includes('prove') && msg.includes('fetch')) ||
+    msg.includes('code="400"') ||
+    msg.includes('code="502"') ||
+    msg.includes('code="503"')
+  ) {
     const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
     return isLocal
-      ? 'Could not connect to Midnight Proof Server at http://localhost:6300. Please ensure Docker Proof Server is running and server proxy is active.'
-      : 'Unable to reach the configured Midnight proof service. Please check your Lace Wallet network/prover settings or use the local development gateway.';
+      ? 'Proof Server is unreachable at http://localhost:6300. Please start the local Docker Proof Server ("docker run -p 6300:6300 midnightnetwork/proof-server") or start the gateway ("node server.js").'
+      : 'Midnight Proof Server is unreachable from this domain. To generate ZK proofs, please run the local gateway ("npm run build:start") or set a custom Prover endpoint in settings.';
+  }
+  if (msg.includes('ERR_NETWORK_CHANGED') || msg.includes('Back-Forward Cache') || msg.includes('NetworkError')) {
+    return 'Network connection changed or browser tab was paused. Please refresh the page and try again.';
   }
   if (msg.includes('proverServerUri')) {
     return 'Lace wallet did not provide a Midnight proof server endpoint. Please verify your Lace Wallet network settings.';
@@ -158,9 +169,7 @@ export const CredentialCard: React.FC<Readonly<CredentialCardProps>> = ({ creden
 
     if (credentialDeployment.status === 'failed') {
       setErrorMessage(
-        credentialDeployment.error.message.length
-          ? credentialDeployment.error.message
-          : 'Encountered an unexpected error while interacting with Midnight.',
+        formatFriendlyErrorMessage(credentialDeployment.error)
       );
       return;
     }

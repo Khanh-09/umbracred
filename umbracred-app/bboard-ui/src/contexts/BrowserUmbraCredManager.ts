@@ -275,6 +275,26 @@ export class BrowserUmbraCredManager implements DeployedCredentialAPIProvider {
   }
 }
 
+const resilientFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  const maxRetries = 3;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const res = await window.fetch(input, init);
+      if (res.ok || res.status === 404) {
+        return res;
+      }
+    } catch (err) {
+      lastError = err;
+      await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+    }
+  }
+  return window.fetch(input, init).catch((err) => {
+    console.warn('ZK key material fetch failed after retries:', err);
+    throw lastError || err;
+  });
+};
+
 /** @internal */
 const initializeProviders = async (
   logger: Logger,
@@ -284,23 +304,22 @@ const initializeProviders = async (
   const networkId = import.meta.env.VITE_NETWORK_ID as NetworkId;
   const connectedAPI = existingConnectedAPI ?? (await connectToWallet(logger, networkId));
   const zkConfigPath = window.location.origin;
-  const keyMaterialProvider = new FetchZkConfigProvider<UmbraCredCircuitKeys>(zkConfigPath, fetch.bind(window));
+  const keyMaterialProvider = new FetchZkConfigProvider<UmbraCredCircuitKeys>(zkConfigPath, resilientFetch);
   const config = await connectedAPI.getConfiguration();
   const inMemoryUmbraCredPrivateStateProvider = inMemoryPrivateStateProvider<string, UmbraCredPrivateState>();
   const shieldedAddresses = await connectedAPI.getShieldedAddresses();
   if (onConnected) {
     onConnected(connectedAPI, shieldedAddresses);
   }
-  const isLocalhost =
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1';
-
-  const proverServerUri = isLocalhost
-    ? `${window.location.origin}/proof-api`
+  
+  // Custom prover URL configured by user or default same-origin /proof-api
+  const customProver = typeof window !== 'undefined' ? localStorage.getItem('umbra_prover_url') : null;
+  const proverServerUri = customProver && customProver.trim().length > 0
+    ? customProver.trim()
     : `${window.location.origin}/proof-api`;
 
   console.log('🔥 PROVER URI:', proverServerUri);
-  logger.info({ proverServerUri }, 'Configured same-origin proof provider proxy URI');
+  logger.info({ proverServerUri }, 'Configured proof provider proxy URI');
   const proofProvider = httpClientProofProvider(proverServerUri, keyMaterialProvider);
 
   return {
