@@ -43,16 +43,14 @@
 
 Watch the complete end-to-end demonstration showing **Midnight Lace Wallet Connection**, **Credential Issuance Circuit**, and **Zero-Knowledge Threshold Verification Circuit (`proveEligibility`)**:
 
-> 📺 **Video Walkthrough**:
->
-> [![UmbraCred Demo Video](https://img.youtube.com/vi/placeholder/maxresdefault.jpg)](https://youtu.be/placeholder)
->
-> *(Click above to watch the walkthrough video or replace `placeholder` with your uploaded YouTube/Loom/Drive video link, or embed `assets/demo.mp4`)*
+> 📺 **Video Walkthrough (Google Drive HD)**:  
+> 🔗 [**Watch UmbraCred End-to-End Demo Video**](https://drive.google.com/file/d/1_F8idyxqCcIh4BAFLLuudWpen0NoQdP5/view?usp=drive_link)  
+> *(Click the link above to watch the complete MVP walkthrough on Google Drive)*
 
 ### 🎬 Key Flows Demonstrated in the Video:
-1. **Wallet Connection**: Connecting the Midnight Lace browser extension DApp connector to UmbraCred.
+1. **Wallet Connection**: Connecting the Midnight Lace browser extension DApp connector to UmbraCred on Preprod.
 2. **Confidential Issuance**: Issuer submits cryptographic commitment `hash("umbracred:cred:", ownerKey, salt, score)` onto Midnight ledger via `issueCredential`.
-3. **ZK Proof Generation & Execution**: Holder generates client-side ZK proof in local proof server and calls `proveEligibility(threshold)` without revealing raw score or salt.
+3. **ZK Proof Generation & Execution**: Holder generates client-side ZK proof in proof server and calls `proveEligibility(threshold)` without revealing raw score or salt.
 4. **Observable Privacy Split**: Demonstrates real-time difference between what the holder sees (private witness) vs. what the verifier learns (boolean outcome only).
 
 ---

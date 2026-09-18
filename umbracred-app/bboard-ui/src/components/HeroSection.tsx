@@ -83,14 +83,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
             <strong> the verifier learns only a boolean yes/no, never the underlying score, salt, or identity.</strong>
           </Typography>
 
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'center', mb: 5 }}>
             <Button
               variant="contained"
               color="primary"
               size="large"
               onClick={onDeployClick}
               startIcon={<PlayArrowIcon />}
-              sx={{ px: 4, py: 1.4, fontSize: '1rem' }}
+              sx={{ px: 3.5, py: 1.3, fontSize: '0.98rem', fontWeight: 700 }}
             >
               Launch Credential Studio
             </Button>
@@ -99,10 +99,94 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onExploreClick, onDepl
               size="large"
               onClick={onExploreClick}
               startIcon={<VisibilityOffIcon />}
-              sx={{ px: 3.5, py: 1.4, fontSize: '1rem', color: '#00f0ff', borderColor: 'rgba(0, 240, 255, 0.4)' }}
+              sx={{ px: 3, py: 1.3, fontSize: '0.98rem', color: '#00f0ff', borderColor: 'rgba(0, 240, 255, 0.4)' }}
             >
               Inspect ZK Privacy Model
             </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              href="https://drive.google.com/file/d/1_F8idyxqCcIh4BAFLLuudWpen0NoQdP5/view?usp=drive_link"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                px: 3,
+                py: 1.3,
+                fontSize: '0.98rem',
+                color: '#ffdd80',
+                borderColor: 'rgba(255, 221, 128, 0.4)',
+                background: 'rgba(255, 221, 128, 0.05)',
+                '&:hover': {
+                  borderColor: '#ffdd80',
+                  background: 'rgba(255, 221, 128, 0.12)',
+                },
+              }}
+            >
+              🎬 Watch Video Demo (HD)
+            </Button>
+          </Box>
+
+          {/* 3-Step User Onboarding Flow */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 4, textAlign: 'left' }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.2,
+                background: 'rgba(124, 92, 255, 0.08)',
+                border: '1px solid rgba(124, 92, 255, 0.3)',
+                borderRadius: 2.5,
+              }}
+            >
+              <Typography variant="overline" sx={{ color: '#00f0ff', fontWeight: 800, letterSpacing: '0.1em' }}>
+                STEP 1 • CONNECT
+              </Typography>
+              <Typography variant="subtitle2" sx={{ color: '#ffffff', fontWeight: 700, mt: 0.5, mb: 0.5 }}>
+                Connect Midnight Lace
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.75)', lineHeight: 1.5, display: 'block' }}>
+                Connect your Lace extension on Preprod testnet to load your shielded address.
+              </Typography>
+            </Paper>
+
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.2,
+                background: 'rgba(124, 92, 255, 0.08)',
+                border: '1px solid rgba(124, 92, 255, 0.3)',
+                borderRadius: 2.5,
+              }}
+            >
+              <Typography variant="overline" sx={{ color: '#a48eff', fontWeight: 800, letterSpacing: '0.1em' }}>
+                STEP 2 • COMMIT
+              </Typography>
+              <Typography variant="subtitle2" sx={{ color: '#ffffff', fontWeight: 700, mt: 0.5, mb: 0.5 }}>
+                Issue Credential Commitment
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.75)', lineHeight: 1.5, display: 'block' }}>
+                Issuer registers hash commitment on-chain. Score &amp; salt stay strictly in local browser state.
+              </Typography>
+            </Paper>
+
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2.2,
+                background: 'rgba(0, 230, 118, 0.08)',
+                border: '1px solid rgba(0, 230, 118, 0.3)',
+                borderRadius: 2.5,
+              }}
+            >
+              <Typography variant="overline" sx={{ color: '#00e676', fontWeight: 800, letterSpacing: '0.1em' }}>
+                STEP 3 • VERIFY (ZK)
+              </Typography>
+              <Typography variant="subtitle2" sx={{ color: '#ffffff', fontWeight: 700, mt: 0.5, mb: 0.5 }}>
+                Prove Score &gt;= Threshold
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(215, 207, 255, 0.75)', lineHeight: 1.5, display: 'block' }}>
+                Select threshold (e.g. 70) and generate ZK proof. Verifier receives boolean only.
+              </Typography>
+            </Paper>
           </Box>
         </Box>
 

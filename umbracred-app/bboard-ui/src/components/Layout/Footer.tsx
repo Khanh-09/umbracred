@@ -68,6 +68,9 @@ export const Footer: React.FC = () => {
               <Link href="https://github.com/Khanh-09/umbracred" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                 GitHub Repository
               </Link>
+              <Link href="https://drive.google.com/file/d/1_F8idyxqCcIh4BAFLLuudWpen0NoQdP5/view?usp=drive_link" target="_blank" underline="hover" sx={{ color: '#ffdd80', fontSize: '0.88rem', fontWeight: 600 }}>
+                🎬 Video Demo (Drive)
+              </Link>
             </Box>
           </Box>
 
