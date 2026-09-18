@@ -24,6 +24,12 @@ export default async function handler(req, res) {
   const subPath = match ? `/${match}` : (req.url?.replace(/^\/api\/proof-api/, '').replace(/^\/proof-api/, '') || '/check');
   const targetUrl = `${PROVER_TARGET.replace(/\/$/, '')}${subPath.startsWith('/') ? '' : '/'}${subPath}`;
 
+  // Quick health-check response for GET
+  if (req.method === 'GET' && (!subPath || subPath === '/' || subPath === '/check')) {
+    res.status(200).json({ status: 'ok', service: 'umbra-proof-gateway', target: PROVER_TARGET });
+    return;
+  }
+
   try {
     // Read raw request buffer
     const chunks = [];
