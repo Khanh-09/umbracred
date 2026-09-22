@@ -48,8 +48,8 @@ export const Footer: React.FC = () => {
               <Link href="https://docs.midnight.network" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
                 Midnight Docs
               </Link>
-              <Link href="https://preprod.midnightexplorer.com" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
-                Preprod Explorer
+              <Link href="https://indexer.preprod.midnight.network" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
+                Preprod Indexer
               </Link>
             </Box>
           </Box>

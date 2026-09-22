@@ -70,6 +70,22 @@ export class UmbraCredSimulator {
     return ledger(this.circuitContext.currentQueryContext.state);
   }
 
+  public revokeCredential(commitment: Uint8Array): Ledger {
+    this.circuitContext = this.contract.impureCircuits.revokeCredential(
+      this.circuitContext,
+      commitment,
+    ).context;
+    return ledger(this.circuitContext.currentQueryContext.state);
+  }
+
+  public updateIssuerKey(newIssuerKey: Uint8Array): Ledger {
+    this.circuitContext = this.contract.impureCircuits.updateIssuerKey(
+      this.circuitContext,
+      newIssuerKey,
+    ).context;
+    return ledger(this.circuitContext.currentQueryContext.state);
+  }
+
   public proveEligibility(threshold: bigint): boolean {
     const result = this.contract.impureCircuits.proveEligibility(
       this.circuitContext,

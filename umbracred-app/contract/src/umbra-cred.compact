@@ -12,6 +12,7 @@ export struct Credential {
 // Public ledger state.
 export ledger issuerKey: Bytes<32>;
 export ledger credentials: Set<Bytes<32>>;
+export ledger revocations: Set<Bytes<32>>;
 
 constructor(initialIssuerKey: Bytes<32>) {
   issuerKey = disclose(initialIssuerKey);
@@ -43,11 +44,34 @@ export circuit issueCredential(commitment: Bytes<32>): [] {
   credentials.insert(disclose(commitment));
 }
 
+// Issuer revokes a credential commitment (e.g. expired, superseded, or invalidated).
+export circuit revokeCredential(commitment: Bytes<32>): [] {
+  assert(
+    issuerKey == issuerPublicKey(localIssuerSecretKey()),
+    "Only the approved issuer can revoke a credential"
+  );
+  assert(
+    credentials.member(disclose(commitment)),
+    "Cannot revoke a non-existent credential commitment"
+  );
+  revocations.insert(disclose(commitment));
+}
+
+// Issuer updates/rotates the public issuer key.
+export circuit updateIssuerKey(newIssuerKey: Bytes<32>): [] {
+  assert(
+    issuerKey == issuerPublicKey(localIssuerSecretKey()),
+    "Only the approved issuer can update the issuer key"
+  );
+  issuerKey = disclose(newIssuerKey);
+}
+
 // Holder proves their credential meets a public threshold without revealing the real score.
 export circuit proveEligibility(threshold: Uint<16>): Boolean {
   const cred = localCredential();
   const ownerKey = localOwnerSecretKey();
   const commitment = credentialCommitment(cred, ownerKey);
   assert(credentials.member(disclose(commitment)), "Credential commitment not found on ledger");
+  assert(!revocations.member(disclose(commitment)), "Credential has been revoked");
   return disclose(cred.score >= threshold);
 }

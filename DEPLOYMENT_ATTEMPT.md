@@ -13,7 +13,7 @@ infrastructure issue rather than a bug in this project's contract, API, CLI, or 
   (`npm run ci` in each package — this now runs as GitHub Actions CI on every push, see
   `.github/workflows/ci.yaml`).
 - A CLI wallet was funded on Preprod and the funding transaction confirmed on-chain
-  (independently verified via https://preprod.midnightexplorer.com), at block #1,848,982.
+  (independently verified via https://indexer.preprod.midnight.network/), at block #1,848,982.
 - The `bboard-ui` frontend connects to a real Lace wallet on Preprod, reads its live
   balance, and successfully builds/submits at least one real transaction end-to-end
   (see below).

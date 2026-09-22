@@ -11,6 +11,10 @@ export type Witnesses<PS> = {
 export type ImpureCircuits<PS> = {
   issueCredential(context: __compactRuntime.CircuitContext<PS>,
                   commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  revokeCredential(context: __compactRuntime.CircuitContext<PS>,
+                   commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  updateIssuerKey(context: __compactRuntime.CircuitContext<PS>,
+                  newIssuerKey_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   proveEligibility(context: __compactRuntime.CircuitContext<PS>,
                    threshold_0: bigint): __compactRuntime.CircuitResults<PS, boolean>;
 }
@@ -18,6 +22,10 @@ export type ImpureCircuits<PS> = {
 export type ProvableCircuits<PS> = {
   issueCredential(context: __compactRuntime.CircuitContext<PS>,
                   commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  revokeCredential(context: __compactRuntime.CircuitContext<PS>,
+                   commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  updateIssuerKey(context: __compactRuntime.CircuitContext<PS>,
+                  newIssuerKey_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   proveEligibility(context: __compactRuntime.CircuitContext<PS>,
                    threshold_0: bigint): __compactRuntime.CircuitResults<PS, boolean>;
 }
@@ -34,6 +42,10 @@ export type Circuits<PS> = {
                        ownerKey_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   issueCredential(context: __compactRuntime.CircuitContext<PS>,
                   commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  revokeCredential(context: __compactRuntime.CircuitContext<PS>,
+                   commitment_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  updateIssuerKey(context: __compactRuntime.CircuitContext<PS>,
+                  newIssuerKey_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
   proveEligibility(context: __compactRuntime.CircuitContext<PS>,
                    threshold_0: bigint): __compactRuntime.CircuitResults<PS, boolean>;
 }
@@ -41,6 +53,12 @@ export type Circuits<PS> = {
 export type Ledger = {
   readonly issuerKey: Uint8Array;
   credentials: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(elem_0: Uint8Array): boolean;
+    [Symbol.iterator](): Iterator<Uint8Array>
+  };
+  revocations: {
     isEmpty(): boolean;
     size(): bigint;
     member(elem_0: Uint8Array): boolean;

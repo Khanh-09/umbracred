@@ -16,7 +16,7 @@
 > 📥 **Exported Feedback Data**: [`umbracred_user_feedback_72_cohort.xlsx`](umbracred_user_feedback_72_cohort.xlsx) (Excel) \| [`umbracred_user_feedback_72_cohort.csv`](umbracred_user_feedback_72_cohort.csv) (CSV)  
 > 🔗 **GitHub Repository**: [https://github.com/Khanh-09/umbracred](https://github.com/Khanh-09/umbracred)  
 > 👥 **Complete 72-User Cohort & Feedback Analysis**: [`FEEDBACK_LOOP.md`](FEEDBACK_LOOP.md)  
-> 📜 **Preprod Contract Address**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957` (Verifiable on [Midnight Preprod Explorer](https://preprod.midnightexplorer.com))
+> 📜 **Preprod Contract Address**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957` (Verifiable on [Midnight Preprod Indexer](https://indexer.preprod.midnight.network/))
 
 **Confidential Credential Verification on [Midnight](https://midnight.network)**. An approved issuer registers a cryptographic commitment to a credential on Midnight's public ledger without revealing its contents; the holder later proves the credential meets a public threshold (e.g. "score ≥ 70") using Zero-Knowledge proofs without ever revealing the real score, salt, credential metadata, or their identity.
 
