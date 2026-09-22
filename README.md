@@ -2,12 +2,12 @@
 
 [![CI](https://github.com/Khanh-09/umbracred/actions/workflows/ci.yaml/badge.svg)](https://github.com/Khanh-09/umbracred/actions/workflows/ci.yaml)
 [![Live DApp](https://img.shields.io/badge/Live_DApp-Vercel-success?style=flat&logo=vercel)](https://umbracred-ashy.vercel.app)
-[![Product X](https://img.shields.io/badge/Product_X-%40UmbraCred-black?style=flat&logo=x)](https://x.com/UmbraCred)
+[![Product X](https://img.shields.io/badge/Product_X-%40UmbracedMish-black?style=flat&logo=x)](https://x.com/UmbracedMish)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Midnight](https://img.shields.io/badge/Midnight-Compact_0.31.0-blueviolet)](https://midnight.network)
 
 > 🚀 **Live Demo DApp**: [https://umbracred-ashy.vercel.app](https://umbracred-ashy.vercel.app)  
-> 🐦 **Product X (Twitter)**: [https://x.com/UmbraCred](https://x.com/UmbraCred) (`@UmbraCred`)  
+> 🐦 **Product X (Twitter)**: [https://x.com/UmbracedMish](https://x.com/UmbracedMish) (`@UmbracedMish`)  
 > 🔗 **GitHub Repository**: [https://github.com/Khanh-09/umbracred](https://github.com/Khanh-09/umbracred)  
 > 👥 **70 Preprod User Cohort & Feedback**: [`FEEDBACK_LOOP.md`](FEEDBACK_LOOP.md)  
 > 📜 **Preprod Contract Address**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957` (Verifiable on [Midnight Preprod Explorer](https://preprod.midnightexplorer.com))
@@ -23,7 +23,7 @@
 - **Extended MVP on Preprod**: Full-stack ZK DApp deployed at [https://umbracred-ashy.vercel.app](https://umbracred-ashy.vercel.app) with 1-click test presets, Interactive Zero-Knowledge Privacy Inspector, and dual-state ledger synchronization.
 - **Verifiable Contract Address**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957` deployed on Midnight Preprod.
 - **Continuous Integration (CI/CD)**: GitHub Actions workflow at [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml) running on every push, verifying Compact compilation, TypeScript typechecks, lint rules, and contract test suites.
-- **Building in Public**: Official product handle [@UmbraCred](https://x.com/UmbraCred) linked in repository, UI footer, and active community announcements.
+- **Building in Public**: Official product handle [@UmbracedMish](https://x.com/UmbracedMish) linked in repository, UI footer, and active community announcements.
 - **Meaningful Commits**: 33+ atomic, well-documented commits tracking product lifecycle, testing iterations, and feedback loop implementations.
 
 ---

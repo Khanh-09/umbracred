@@ -153,4 +153,4 @@ We scored proposed feature requests using the **RICE framework** (Reach × Impac
 1. **Connector Timeout Extension**: Increased Lace wallet API response timeout from 5s to 60s to accommodate manual password entry.
 2. **Auto-Dismissing Alert Banners**: Error alerts are now automatically cleared whenever a new deployment or proof operation succeeds.
 3. **Enhanced Role-Based Guidance**: Detailed Mermaid workflow diagrams embedded in documentation and interactive UI.
-4. **Product X Public Community Channel**: Launched [@UmbraCred](https://x.com/UmbraCred) to announce testnet releases and gather ongoing community feedback.
+4. **Product X Public Community Channel**: Launched [@UmbracedMish](https://x.com/UmbracedMish) to announce testnet releases and gather ongoing community feedback.

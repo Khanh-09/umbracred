@@ -87,8 +87,8 @@ export const Footer: React.FC = () => {
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
                 <TwitterIcon sx={{ fontSize: 18, color: '#a48eff' }} />
-                <Link href="https://x.com/UmbraCred" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
-                  Product X (@UmbraCred)
+                <Link href="https://x.com/UmbracedMish" target="_blank" underline="hover" sx={{ color: '#b0a6e0', fontSize: '0.88rem' }}>
+                  Product X (@UmbracedMish)
                 </Link>
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, alignItems: 'center' }}>
