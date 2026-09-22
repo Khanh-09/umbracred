@@ -10,6 +10,7 @@ This document records the user acquisition, structured feedback collection, prio
 - 📢 **Product Update Post**: [https://x.com/UmbracedMish/status/2102215665008640083?s=20](https://x.com/UmbracedMish/status/2102215665008640083?s=20)
 - 📝 **Google Feedback Form**: [https://forms.gle/ijXDMeZHS8DhFooh7](https://forms.gle/ijXDMeZHS8DhFooh7)
 - 📊 **Public Google Sheets (Feedback Responses)**: [https://docs.google.com/spreadsheets/d/17k3S7EWF3PmRQF9JOPM-pG0TBqAsyZMw8Jrw0cE4xKY/edit?gid=644094161#gid=644094161](https://docs.google.com/spreadsheets/d/17k3S7EWF3PmRQF9JOPM-pG0TBqAsyZMw8Jrw0cE4xKY/edit?gid=644094161#gid=644094161)
+- 📥 **Exported Survey Dataset**: [`umbracred_user_feedback_72_cohort.xlsx`](umbracred_user_feedback_72_cohort.xlsx) (Excel) | [`umbracred_user_feedback_72_cohort.csv`](umbracred_user_feedback_72_cohort.csv) (CSV)
 - 🚀 **Live Production DApp**: [https://umbracred-ashy.vercel.app](https://umbracred-ashy.vercel.app)
 - 📜 **Verifiable Midnight Contract**: `02005470d03bfd4193b0a70ffaa5e2dc3be81a5a044d0397bfd69a24bbad88f8d957` ([Explorer](https://preprod.midnightexplorer.com))
 
